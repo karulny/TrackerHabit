@@ -1,0 +1,96 @@
+/* Общий фон и текст */
+QWidget {
+    background-color: #F5F5F5;
+    color: #333333;
+    font-family: "Segoe UI";
+    font-size: 11pt;
+}
+
+/* Кнопки */
+QPushButton {
+    background-color: #E0E0E0;
+    color: #333333;
+    border: 1px solid #CCCCCC;
+    border-radius: 6px;
+    padding: 6px 12px;
+}
+QPushButton:hover {
+    background-color: #D5D5D5;
+}
+QPushButton:pressed {
+    background-color: #C0C0C0;
+}
+
+/* Поля ввода */
+QLineEdit {
+    background-color: #FFFFFF;
+    border: 1px solid #CCCCCC;
+    border-radius: 4px;
+    padding: 4px;
+}
+
+/* Метки */
+QLabel {
+    color: #333333;
+}
+
+/* Прогресс бар */
+QProgressBar {
+    background-color: #E0E0E0;
+    border: 1px solid #CCCCCC;
+    border-radius: 5px;
+    text-align: center;
+    color: #333333;
+}
+QProgressBar::chunk {
+    background-color: #4A90E2;
+    border-radius: 5px;
+}
+
+/* Вкладки */
+QTabWidget::pane {
+    border: 1px solid #CCCCCC;
+    background: #F5F5F5;
+}
+QTabBar::tab {
+    background: #E0E0E0;
+    color: #333333;
+    padding: 8px 16px;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+    margin: 2px;
+}
+QTabBar::tab:selected {
+    background: #D5D5D5;
+    font-weight: bold;
+}
+
+/* Списки */
+QListWidget {
+    background-color: #FFFFFF;
+    border: 1px solid #CCCCCC;
+    color: #333333;
+}
+QListWidget::item:selected {
+    background-color: #4A90E2;
+    color: #FFFFFF;
+}
+
+/* Скроллбар */
+QScrollBar:vertical {
+    background: #E0E0E0;
+    width: 12px;
+    margin: 0px 0px 0px 0px;
+    border-radius: 6px;
+}
+QScrollBar::handle:vertical {
+    background: #CCCCCC;
+    min-height: 20px;
+    border-radius: 6px;
+}
+QScrollBar::handle:vertical:hover {
+    background: #BBBBBB;
+}
+QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
+    height: 0px;
+}
