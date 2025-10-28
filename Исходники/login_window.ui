@@ -39,7 +39,7 @@
     </sizepolicy>
    </property>
    <property name="currentIndex">
-    <number>1</number>
+    <number>0</number>
    </property>
    <widget class="QWidget" name="LoginPage">
     <widget class="QWidget" name="layoutWidget">
@@ -105,9 +105,9 @@ QPushButton:pressed {
      <property name="geometry">
       <rect>
        <x>110</x>
-       <y>82</y>
+       <y>54</y>
        <width>255</width>
-       <height>191</height>
+       <height>241</height>
       </rect>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout">
@@ -199,6 +199,24 @@ border-radius: 5px;</string>
         </property>
         <property name="echoMode">
          <enum>QLineEdit::PasswordEchoOnEdit</enum>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="labelError_2">
+        <property name="font">
+         <font>
+          <family>Noto Sans</family>
+          <pointsize>11</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">color: red;</string>
+        </property>
+        <property name="text">
+         <string/>
         </property>
        </widget>
       </item>
@@ -353,6 +371,24 @@ border-radius: 5px;</string>
         </property>
         <property name="echoMode">
          <enum>QLineEdit::PasswordEchoOnEdit</enum>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="labelError">
+        <property name="font">
+         <font>
+          <family>Noto Sans</family>
+          <pointsize>11</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">color: red;</string>
+        </property>
+        <property name="text">
+         <string/>
         </property>
        </widget>
       </item>
