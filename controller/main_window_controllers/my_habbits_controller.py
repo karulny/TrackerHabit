@@ -1,36 +1,175 @@
+from view.add_dialog import AddHabitDialog
+from PyQt6.QtWidgets import QMessageBox, QAbstractItemView, QHeaderView
+from PyQt6.QtGui import QStandardItemModel, QStandardItem
+from PyQt6.QtCore import QSortFilterProxyModel, Qt
+from sqlite3 import IntegrityError
+
 
 class MyHabitsController:
-    def __init__(self, window):
+    def __init__(self, window, model, user_id):
+        self.user_id = user_id
         self.window = window
+        self.model = model
+        self.table_model = QStandardItemModel()
+        self.proxy_model = QSortFilterProxyModel()
         self.init_ui()
+        self.show_habits()
 
     def init_ui(self):
+        # Подключение кнопок
         self.window.AddHabbitBtn.clicked.connect(self.add_btn)
         self.window.DeleteHabbitBtn.clicked.connect(self.delete_btn)
         self.window.MarkHabbitBtn.clicked.connect(self.mark_btn)
         self.window.SearchInput.textChanged.connect(self.get_search_filter)
-        self.window.DeleteFilterBtn.clicked.connect(self.delete_btn)
+        self.window.DeleteFilterBtn.clicked.connect(self.remove_filter)
+        self.window.FilterBox.activated.connect(self.category_filter)
+
+        # делаем изменения для виджета отображения
+        self.window.HabitsTable.setModel(self.table_model)
+        self._make_some_changes_to_HabitsTable()
+        self.proxy_model.setSourceModel(self.table_model)
+        self.proxy_model.setFilterCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
+        self.proxy_model.setFilterKeyColumn(0)  # фильтр по названию привычки (0-й столбец)
+        self.window.HabitsTable.setModel(self.proxy_model)
 
     def add_btn(self):
-        pass
+        dialog = AddHabitDialog(self.window)
+        if dialog.exec():
+            data = dialog.get_data()
+            name = data["name"].strip()
+            if not name:
+                QMessageBox.warning(self.window, "Ошибка", "Введите название привычки.")
+                return
+            try:
+                self.model.add_habit(
+                    user_id=self.user_id,
+                    name=name,
+                    category=data["category"].strip(),
+                    frequency=data["frequency"]
+                )
+
+                self.show_habits()
+            except IntegrityError:
+                QMessageBox.warning(self.window, "Ошибка", "Имена привычек не должны повторятся")
 
     def delete_btn(self):
-        self.window.SearchInput.clear()
+        current_index = self.window.HabitsTable.currentIndex()
+        if not current_index.isValid():
+            QMessageBox.warning(self.window, "Ошибка", "Выберите привычку для удаления.")
+            return
+
+        row = current_index.row()
+        habit_name = self.table_model.item(row, 0).text()
+        print(habit_name)
+        # Удаляем привычку в БД
+        self.model.remove_habit(self.user_id, habit_name)
+
+        # Обновляем список, но в угоду оптимизации просто удаляем ячейку по индексу
+        self.table_model.removeRow(current_index.row())
 
     def mark_btn(self):
-        pass
+        current_index = self.window.HabitsTable.currentIndex()
+        if not current_index.isValid():
+            QMessageBox.warning(self.window, "Ошибка", "Выберите привычку для отметки.")
+            return
+
+        row = current_index.row()
+        habit_name = self.table_model.item(row, 0).text()
+
+        # Меняем отметку в БД
+        self.model.toggle_mark_habit(self.user_id, habit_name)
+
+        # Обновляем таблицу
+        self.update_mark_in_table(current_index.row())
 
     def remove_filter(self):
-        pass
+        self.window.SearchInput.clear()
+        self.proxy_model.setFilterFixedString("")
+        self.window.FilterBox.setCurrentIndex(0)
 
     def show_habits(self):
-        pass
+        habits = self.model.get_habits(self.user_id)
+
+        self.table_model.clear()
+        self.table_model.setHorizontalHeaderLabels(["Название", "Категория", "Частота", "Дата", "Выполнено"])
+
+        for habit in habits:
+
+            row = [
+                QStandardItem(habit["name"]),
+                QStandardItem(habit["category"]),
+                QStandardItem(habit["frequency"]),
+                QStandardItem(habit["created_at"]),
+            ]
+
+            marked_item = QStandardItem()
+            if habit["marked"] == 1:
+                marked_item.setText("✅")
+            else:
+                marked_item.setText("❌")
+            row.append(marked_item)
+
+            self.table_model.appendRow(row)
+        # Растягиваем колонки для наилучшего вида
+        header = self.window.HabitsTable.horizontalHeader()
+        header.setSectionResizeMode(0, QHeaderView.ResizeMode.Stretch)
+        for i in range(1, self.table_model.columnCount()):
+            header.setSectionResizeMode(i, QHeaderView.ResizeMode.ResizeToContents)
+
+        # Обновляем категории для FilterBox
+        self.update_categories()
 
     def get_search_filter(self):
-        print('Cool!')
+        text = self.window.SearchInput.text()
+        self.proxy_model.setFilterFixedString(text)
 
-    def get_time_filter(self):
-        pass
+    def category_filter(self):
+        """Применяет фильтр по выбранной категории."""
+        category = self.window.FilterBox.currentText()  # Получаем выбранную категорию
 
-    def show_time_filter(self):
-        pass
+        if category == "Все":
+            # Убираем фильтрацию по категории
+            self.proxy_model.setFilterKeyColumn(-1)
+            self.proxy_model.setFilterFixedString("")
+        else:
+            self.proxy_model.setFilterKeyColumn(1)  # Предполагаем, что категории находятся во втором столбце (индекс 1)
+            self.proxy_model.setFilterFixedString(category)
+
+    def _make_some_changes_to_HabitsTable(self):
+        # отключаем редактирование
+        self.window.HabitsTable.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
+        # выделяем строку целиком
+        self.window.HabitsTable.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
+        # двойной клик для получения информации о привычке
+        self.window.HabitsTable.doubleClicked.connect(self.on_habit_double_clicked)
+
+    def on_habit_double_clicked(self, index):
+        row = index.row()
+        habit_name = self.table_model.item(row, 0).text()
+        category = self.table_model.item(row, 1).text()
+        frequency = self.table_model.item(row, 2).text()
+        marked = self.table_model.item(row, 4).text()
+        QMessageBox.information(
+            self.window,
+            "Выбор привычки",
+            f"Вы выбрали привычку:\n\n🧩 {habit_name}\n📂 Категория: {category}\n⏱ Частота: {frequency}\n Выполнена: "
+            f"{marked}"
+        )
+
+    def update_mark_in_table(self, row):
+        """Обновляет статус 'выполнено' в таблице (✅ / ❌)"""
+        current_item = self.table_model.item(row, 4)
+        if not current_item:
+            return
+
+        if current_item.text() == "✅":
+            current_item.setText("❌")
+        else:
+            current_item.setText("✅")
+
+    def update_categories(self):
+        categories = self.model.get_categories(self.user_id)
+        self.window.FilterBox.clear()
+        self.window.FilterBox.addItem("Все")
+        self.window.FilterBox.addItems(categories)
+        self.window.FilterBox.setCurrentIndex(0)

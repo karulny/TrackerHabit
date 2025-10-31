@@ -74,7 +74,7 @@
              <widget class="QComboBox" name="FilterBox"/>
             </item>
             <item row="2" column="0" colspan="3">
-             <widget class="QListWidget" name="HabbitList"/>
+             <widget class="QTableView" name="HabitList"/>
             </item>
            </layout>
           </item>
@@ -245,14 +245,14 @@
          <layout class="QHBoxLayout" name="topSettingsLayout">
           <item>
            <widget class="QGroupBox" name="SecutityBox">
-            <property name="title">
-             <string>Безопасность</string>
-            </property>
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
+            </property>
+            <property name="title">
+             <string>Безопасность</string>
             </property>
             <layout class="QGridLayout" name="gridLayout_3">
              <item row="0" column="0">
@@ -302,14 +302,14 @@
           </item>
           <item>
            <widget class="QGroupBox" name="groupBox">
-            <property name="title">
-             <string>Тема приложения:</string>
-            </property>
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
+            </property>
+            <property name="title">
+             <string>Тема приложения:</string>
             </property>
             <layout class="QVBoxLayout" name="themeBoxLayout">
              <item>
