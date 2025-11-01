@@ -1,15 +1,14 @@
 from PyQt6.QtWidgets import QApplication
 import sys
-from PyQt6.QtWidgets import QMessageBox
-from controller import MainWindowController
+from controller import StartUpController
 
 
 def main():
     app = QApplication(sys.argv)
-    main_app = MainWindowController()
-
-
-    main_app.show()
+    controller = StartUpController()
+    controller.show_login_window()
     sys.exit(app.exec())
+
+
 if __name__ == '__main__':
     main()

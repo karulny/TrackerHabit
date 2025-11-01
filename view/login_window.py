@@ -18,7 +18,8 @@ class Ui_LoginUi(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(LoginUi.sizePolicy().hasHeightForWidth())
         LoginUi.setSizePolicy(sizePolicy)
-        LoginUi.setStyleSheet("background-color: #D3D3D3\n"
+        LoginUi.setStyleSheet("background-color: #D3D3D3;\n"
+"color: black;\n"
 "")
         self.stackedWidget = QtWidgets.QStackedWidget(parent=LoginUi)
         self.stackedWidget.setGeometry(QtCore.QRect(0, 0, 600, 400))
@@ -30,19 +31,8 @@ class Ui_LoginUi(object):
         self.stackedWidget.setObjectName("stackedWidget")
         self.LoginPage = QtWidgets.QWidget()
         self.LoginPage.setObjectName("LoginPage")
-        self.labelError_2 = QtWidgets.QLabel(parent=self.LoginPage)
-        self.labelError_2.setGeometry(QtCore.QRect(111, 205, 16, 23))
-        font = QtGui.QFont()
-        font.setFamily("Noto Sans")
-        font.setPointSize(11)
-        font.setBold(True)
-        font.setWeight(75)
-        self.labelError_2.setFont(font)
-        self.labelError_2.setStyleSheet("color: red;")
-        self.labelError_2.setText("")
-        self.labelError_2.setObjectName("labelError_2")
         self.layoutWidget = QtWidgets.QWidget(parent=self.LoginPage)
-        self.layoutWidget.setGeometry(QtCore.QRect(100, 70, 401, 301))
+        self.layoutWidget.setGeometry(QtCore.QRect(100, 40, 401, 301))
         self.layoutWidget.setObjectName("layoutWidget")
         self.verticalLayout_4 = QtWidgets.QVBoxLayout(self.layoutWidget)
         self.verticalLayout_4.setContentsMargins(0, 0, 0, 0)
@@ -52,67 +42,14 @@ class Ui_LoginUi(object):
         font.setFamily("DejaVu Sans Mono")
         font.setPointSize(14)
         self.groupBox.setFont(font)
+        self.groupBox.setStyleSheet("color: black;")
         self.groupBox.setObjectName("groupBox")
         self.verticalLayout_3 = QtWidgets.QVBoxLayout(self.groupBox)
         self.verticalLayout_3.setObjectName("verticalLayout_3")
+        spacerItem = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Expanding)
+        self.verticalLayout_3.addItem(spacerItem)
         self.gridLayout_3 = QtWidgets.QGridLayout()
         self.gridLayout_3.setObjectName("gridLayout_3")
-        self.LogiShowPwd = QtWidgets.QPushButton(parent=self.groupBox)
-        self.LogiShowPwd.setStyleSheet("QPushButton {\n"
-"    background-color: #B0B0B0;\n"
-"    color: #1E1E1E;\n"
-"    border: 1px solid #A0A0A0;\n"
-"    border-radius: 6px;\n"
-"    padding: 6px 12px;\n"
-"}\n"
-"\n"
-"QPushButton:hover {\n"
-"    background-color: #9C9C9C;\n"
-"}\n"
-"\n"
-"QPushButton:pressed {\n"
-"    background-color: #888888;\n"
-"}")
-        self.LogiShowPwd.setObjectName("LogiShowPwd")
-        self.gridLayout_3.addWidget(self.LogiShowPwd, 0, 1, 1, 1)
-        self.verticalLayout = QtWidgets.QVBoxLayout()
-        self.verticalLayout.setObjectName("verticalLayout")
-        self.label = QtWidgets.QLabel(parent=self.groupBox)
-        font = QtGui.QFont()
-        font.setFamily("Noto Sans")
-        font.setPointSize(12)
-        font.setBold(False)
-        font.setWeight(50)
-        self.label.setFont(font)
-        self.label.setObjectName("label")
-        self.verticalLayout.addWidget(self.label)
-        self.LoginEdit = QtWidgets.QLineEdit(parent=self.groupBox)
-        self.LoginEdit.setStyleSheet("background-color: #f0f0f0;\n"
-"border-radius: 5px;")
-        self.LoginEdit.setEchoMode(QtWidgets.QLineEdit.EchoMode.PasswordEchoOnEdit)
-        self.LoginEdit.setObjectName("LoginEdit")
-        self.verticalLayout.addWidget(self.LoginEdit)
-        self.label_2 = QtWidgets.QLabel(parent=self.groupBox)
-        font = QtGui.QFont()
-        font.setFamily("Noto Sans")
-        font.setPointSize(12)
-        font.setBold(False)
-        font.setWeight(50)
-        self.label_2.setFont(font)
-        self.label_2.setObjectName("label_2")
-        self.verticalLayout.addWidget(self.label_2)
-        self.PasswordEdit = QtWidgets.QLineEdit(parent=self.groupBox)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Ignored, QtWidgets.QSizePolicy.Policy.Fixed)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.PasswordEdit.sizePolicy().hasHeightForWidth())
-        self.PasswordEdit.setSizePolicy(sizePolicy)
-        self.PasswordEdit.setStyleSheet("background-color: #f0f0f0;\n"
-"border-radius: 5px;")
-        self.PasswordEdit.setEchoMode(QtWidgets.QLineEdit.EchoMode.PasswordEchoOnEdit)
-        self.PasswordEdit.setObjectName("PasswordEdit")
-        self.verticalLayout.addWidget(self.PasswordEdit)
-        self.gridLayout_3.addLayout(self.verticalLayout, 0, 0, 1, 1)
         self.LoginBtn = QtWidgets.QPushButton(parent=self.groupBox)
         font = QtGui.QFont()
         font.setFamily("Noto Sans")
@@ -136,20 +73,73 @@ class Ui_LoginUi(object):
 "    background-color: #888888;\n"
 "}")
         self.LoginBtn.setObjectName("LoginBtn")
-        self.gridLayout_3.addWidget(self.LoginBtn, 1, 0, 1, 1)
+        self.gridLayout_3.addWidget(self.LoginBtn, 2, 0, 1, 1)
+        self.LoginShowPwd = QtWidgets.QPushButton(parent=self.groupBox)
+        self.LoginShowPwd.setStyleSheet("QPushButton {\n"
+"    background-color: #B0B0B0;\n"
+"    color: #1E1E1E;\n"
+"    border: 1px solid #A0A0A0;\n"
+"    border-radius: 6px;\n"
+"    padding: 6px 12px;\n"
+"}\n"
+"\n"
+"QPushButton:hover {\n"
+"    background-color: #9C9C9C;\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"    background-color: #888888;\n"
+"}")
+        self.LoginShowPwd.setObjectName("LoginShowPwd")
+        self.gridLayout_3.addWidget(self.LoginShowPwd, 0, 1, 1, 1)
+        self.verticalLayout = QtWidgets.QVBoxLayout()
+        self.verticalLayout.setObjectName("verticalLayout")
+        self.label = QtWidgets.QLabel(parent=self.groupBox)
+        font = QtGui.QFont()
+        font.setFamily("Noto Sans")
+        font.setPointSize(12)
+        font.setBold(False)
+        font.setWeight(50)
+        self.label.setFont(font)
+        self.label.setStyleSheet("color: black;")
+        self.label.setObjectName("label")
+        self.verticalLayout.addWidget(self.label)
+        self.LoginEdit = QtWidgets.QLineEdit(parent=self.groupBox)
+        self.LoginEdit.setStyleSheet("background-color: #f0f0f0;\n"
+"border-radius: 5px;\n"
+"color: black;")
+        self.LoginEdit.setEchoMode(QtWidgets.QLineEdit.EchoMode.Normal)
+        self.LoginEdit.setObjectName("LoginEdit")
+        self.verticalLayout.addWidget(self.LoginEdit)
+        self.label_2 = QtWidgets.QLabel(parent=self.groupBox)
+        font = QtGui.QFont()
+        font.setFamily("Noto Sans")
+        font.setPointSize(12)
+        font.setBold(False)
+        font.setWeight(50)
+        self.label_2.setFont(font)
+        self.label_2.setStyleSheet("color: black;")
+        self.label_2.setObjectName("label_2")
+        self.verticalLayout.addWidget(self.label_2)
+        self.PasswordEdit = QtWidgets.QLineEdit(parent=self.groupBox)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Ignored, QtWidgets.QSizePolicy.Policy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.PasswordEdit.sizePolicy().hasHeightForWidth())
+        self.PasswordEdit.setSizePolicy(sizePolicy)
+        self.PasswordEdit.setStyleSheet("background-color: #f0f0f0;\n"
+"border-radius: 5px;\n"
+"color: black;")
+        self.PasswordEdit.setEchoMode(QtWidgets.QLineEdit.EchoMode.Password)
+        self.PasswordEdit.setObjectName("PasswordEdit")
+        self.verticalLayout.addWidget(self.PasswordEdit)
+        self.gridLayout_3.addLayout(self.verticalLayout, 0, 0, 1, 1)
+        spacerItem1 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Expanding)
+        self.gridLayout_3.addItem(spacerItem1, 1, 0, 1, 1)
         self.verticalLayout_3.addLayout(self.gridLayout_3)
         self.verticalLayout_4.addWidget(self.groupBox)
         self.gridLayout = QtWidgets.QGridLayout()
         self.gridLayout.setObjectName("gridLayout")
-        self.label_4 = QtWidgets.QLabel(parent=self.layoutWidget)
-        font = QtGui.QFont()
-        font.setFamily("DejaVu Sans Mono")
-        font.setPointSize(14)
-        font.setBold(False)
-        font.setWeight(50)
-        self.label_4.setFont(font)
-        self.label_4.setObjectName("label_4")
-        self.gridLayout.addWidget(self.label_4, 0, 0, 1, 1)
         self.login_to_register_btn = QtWidgets.QPushButton(parent=self.layoutWidget)
         font = QtGui.QFont()
         font.setFamily("Noto Sans")
@@ -174,21 +164,20 @@ class Ui_LoginUi(object):
 "}")
         self.login_to_register_btn.setObjectName("login_to_register_btn")
         self.gridLayout.addWidget(self.login_to_register_btn, 0, 1, 1, 1)
+        self.label_4 = QtWidgets.QLabel(parent=self.layoutWidget)
+        font = QtGui.QFont()
+        font.setFamily("DejaVu Sans Mono")
+        font.setPointSize(14)
+        font.setBold(False)
+        font.setWeight(50)
+        self.label_4.setFont(font)
+        self.label_4.setStyleSheet("color: black;")
+        self.label_4.setObjectName("label_4")
+        self.gridLayout.addWidget(self.label_4, 0, 0, 1, 1)
         self.verticalLayout_4.addLayout(self.gridLayout)
         self.stackedWidget.addWidget(self.LoginPage)
         self.RegisterPage = QtWidgets.QWidget()
         self.RegisterPage.setObjectName("RegisterPage")
-        self.labelError = QtWidgets.QLabel(parent=self.RegisterPage)
-        self.labelError.setGeometry(QtCore.QRect(81, 193, 16, 23))
-        font = QtGui.QFont()
-        font.setFamily("Noto Sans")
-        font.setPointSize(11)
-        font.setBold(True)
-        font.setWeight(75)
-        self.labelError.setFont(font)
-        self.labelError.setStyleSheet("color: red;")
-        self.labelError.setText("")
-        self.labelError.setObjectName("labelError")
         self.layoutWidget1 = QtWidgets.QWidget(parent=self.RegisterPage)
         self.layoutWidget1.setGeometry(QtCore.QRect(120, 20, 381, 331))
         self.layoutWidget1.setObjectName("layoutWidget1")
@@ -200,67 +189,42 @@ class Ui_LoginUi(object):
         font.setFamily("DejaVu Sans Mono")
         font.setPointSize(14)
         self.groupBox_2.setFont(font)
+        self.groupBox_2.setStyleSheet("color: black;")
         self.groupBox_2.setObjectName("groupBox_2")
         self.verticalLayout_2 = QtWidgets.QVBoxLayout(self.groupBox_2)
         self.verticalLayout_2.setObjectName("verticalLayout_2")
         self.gridLayout_4 = QtWidgets.QGridLayout()
         self.gridLayout_4.setObjectName("gridLayout_4")
-        self.RegistShowPwd = QtWidgets.QPushButton(parent=self.groupBox_2)
-        self.RegistShowPwd.setStyleSheet("QPushButton {\n"
-"    background-color: #B0B0B0;\n"
-"    color: #1E1E1E;\n"
-"    border: 1px solid #A0A0A0;\n"
-"    border-radius: 6px;\n"
-"    padding: 6px 12px;\n"
-"}\n"
-"\n"
-"QPushButton:hover {\n"
-"    background-color: #9C9C9C;\n"
-"}\n"
-"\n"
-"QPushButton:pressed {\n"
-"    background-color: #888888;\n"
-"}")
-        self.RegistShowPwd.setObjectName("RegistShowPwd")
-        self.gridLayout_4.addWidget(self.RegistShowPwd, 5, 2, 1, 1)
-        self.label_5 = QtWidgets.QLabel(parent=self.groupBox_2)
-        font = QtGui.QFont()
-        font.setFamily("DejaVu Sans Mono")
-        font.setPointSize(12)
-        self.label_5.setFont(font)
-        self.label_5.setObjectName("label_5")
-        self.gridLayout_4.addWidget(self.label_5, 2, 0, 1, 1)
         self.label_6 = QtWidgets.QLabel(parent=self.groupBox_2)
         font = QtGui.QFont()
         font.setFamily("DejaVu Sans Mono")
         font.setPointSize(12)
         self.label_6.setFont(font)
+        self.label_6.setStyleSheet("color: black;")
         self.label_6.setObjectName("label_6")
-        self.gridLayout_4.addWidget(self.label_6, 6, 0, 1, 3)
-        self.label_7 = QtWidgets.QLabel(parent=self.groupBox_2)
-        font = QtGui.QFont()
-        font.setFamily("DejaVu Sans Mono")
-        font.setPointSize(12)
-        self.label_7.setFont(font)
-        self.label_7.setObjectName("label_7")
-        self.gridLayout_4.addWidget(self.label_7, 4, 0, 1, 1)
-        self.RegistPasswordEdit = QtWidgets.QLineEdit(parent=self.groupBox_2)
-        self.RegistPasswordEdit.setStyleSheet("background-color: #f0f0f0;\n"
-"border-radius: 5px;")
-        self.RegistPasswordEdit.setEchoMode(QtWidgets.QLineEdit.EchoMode.PasswordEchoOnEdit)
-        self.RegistPasswordEdit.setObjectName("RegistPasswordEdit")
-        self.gridLayout_4.addWidget(self.RegistPasswordEdit, 5, 0, 1, 2)
-        self.RegistLoginEdit = QtWidgets.QLineEdit(parent=self.groupBox_2)
-        self.RegistLoginEdit.setStyleSheet("background-color: #f0f0f0;\n"
-"border-radius: 5px;")
-        self.RegistLoginEdit.setObjectName("RegistLoginEdit")
-        self.gridLayout_4.addWidget(self.RegistLoginEdit, 3, 0, 1, 1)
+        self.gridLayout_4.addWidget(self.label_6, 7, 0, 1, 3)
         self.RegistPasswordConfirmEdit = QtWidgets.QLineEdit(parent=self.groupBox_2)
         self.RegistPasswordConfirmEdit.setStyleSheet("background-color: #f0f0f0;\n"
-"border-radius: 5px;")
-        self.RegistPasswordConfirmEdit.setEchoMode(QtWidgets.QLineEdit.EchoMode.PasswordEchoOnEdit)
+"border-radius: 5px;\n"
+"color: black;")
+        self.RegistPasswordConfirmEdit.setEchoMode(QtWidgets.QLineEdit.EchoMode.Password)
         self.RegistPasswordConfirmEdit.setObjectName("RegistPasswordConfirmEdit")
-        self.gridLayout_4.addWidget(self.RegistPasswordConfirmEdit, 7, 0, 1, 2)
+        self.gridLayout_4.addWidget(self.RegistPasswordConfirmEdit, 8, 0, 1, 2)
+        self.RegistLoginEdit = QtWidgets.QLineEdit(parent=self.groupBox_2)
+        self.RegistLoginEdit.setStyleSheet("background-color: #f0f0f0;\n"
+"border-radius: 5px;\n"
+"color: black;")
+        self.RegistLoginEdit.setObjectName("RegistLoginEdit")
+        self.gridLayout_4.addWidget(self.RegistLoginEdit, 4, 0, 1, 1)
+        self.RegistPasswordEdit = QtWidgets.QLineEdit(parent=self.groupBox_2)
+        self.RegistPasswordEdit.setStyleSheet("background-color: #f0f0f0;\n"
+"border-radius: 5px;\n"
+"color: black;")
+        self.RegistPasswordEdit.setEchoMode(QtWidgets.QLineEdit.EchoMode.Password)
+        self.RegistPasswordEdit.setObjectName("RegistPasswordEdit")
+        self.gridLayout_4.addWidget(self.RegistPasswordEdit, 6, 0, 1, 2)
+        spacerItem2 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Expanding)
+        self.gridLayout_4.addItem(spacerItem2, 9, 0, 1, 1)
         self.RegisterBtnNewUser = QtWidgets.QPushButton(parent=self.groupBox_2)
         font = QtGui.QFont()
         font.setFamily("Noto Sans")
@@ -284,7 +248,43 @@ class Ui_LoginUi(object):
 "    background-color: #888888;\n"
 "}")
         self.RegisterBtnNewUser.setObjectName("RegisterBtnNewUser")
-        self.gridLayout_4.addWidget(self.RegisterBtnNewUser, 8, 0, 1, 3)
+        self.gridLayout_4.addWidget(self.RegisterBtnNewUser, 10, 0, 1, 3)
+        self.label_7 = QtWidgets.QLabel(parent=self.groupBox_2)
+        font = QtGui.QFont()
+        font.setFamily("DejaVu Sans Mono")
+        font.setPointSize(12)
+        self.label_7.setFont(font)
+        self.label_7.setStyleSheet("color: black;")
+        self.label_7.setObjectName("label_7")
+        self.gridLayout_4.addWidget(self.label_7, 5, 0, 1, 1)
+        self.RegistShowPwd = QtWidgets.QPushButton(parent=self.groupBox_2)
+        self.RegistShowPwd.setStyleSheet("QPushButton {\n"
+"    background-color: #B0B0B0;\n"
+"    color: #1E1E1E;\n"
+"    border: 1px solid #A0A0A0;\n"
+"    border-radius: 6px;\n"
+"    padding: 6px 12px;\n"
+"}\n"
+"\n"
+"QPushButton:hover {\n"
+"    background-color: #9C9C9C;\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"    background-color: #888888;\n"
+"}")
+        self.RegistShowPwd.setObjectName("RegistShowPwd")
+        self.gridLayout_4.addWidget(self.RegistShowPwd, 6, 2, 1, 1)
+        self.label_5 = QtWidgets.QLabel(parent=self.groupBox_2)
+        font = QtGui.QFont()
+        font.setFamily("DejaVu Sans Mono")
+        font.setPointSize(12)
+        self.label_5.setFont(font)
+        self.label_5.setStyleSheet("color: black;")
+        self.label_5.setObjectName("label_5")
+        self.gridLayout_4.addWidget(self.label_5, 3, 0, 1, 1)
+        spacerItem3 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Expanding)
+        self.gridLayout_4.addItem(spacerItem3, 2, 0, 1, 1)
         self.verticalLayout_2.addLayout(self.gridLayout_4)
         self.verticalLayout_5.addWidget(self.groupBox_2)
         self.gridLayout_2 = QtWidgets.QGridLayout()
@@ -320,6 +320,7 @@ class Ui_LoginUi(object):
         font.setBold(False)
         font.setWeight(50)
         self.label_8.setFont(font)
+        self.label_8.setStyleSheet("color: black;")
         self.label_8.setObjectName("label_8")
         self.gridLayout_2.addWidget(self.label_8, 0, 0, 1, 1)
         self.verticalLayout_5.addLayout(self.gridLayout_2)
@@ -333,17 +334,17 @@ class Ui_LoginUi(object):
         _translate = QtCore.QCoreApplication.translate
         LoginUi.setWindowTitle(_translate("LoginUi", "Окно входа"))
         self.groupBox.setTitle(_translate("LoginUi", "Вход:"))
-        self.LogiShowPwd.setText(_translate("LoginUi", "👁"))
+        self.LoginBtn.setText(_translate("LoginUi", "🔑 Войти"))
+        self.LoginShowPwd.setText(_translate("LoginUi", "👁"))
         self.label.setText(_translate("LoginUi", "Логин:"))
         self.label_2.setText(_translate("LoginUi", "Пароль:"))
-        self.LoginBtn.setText(_translate("LoginUi", "🔑 Войти"))
-        self.label_4.setText(_translate("LoginUi", "Нет аккаунта?:"))
         self.login_to_register_btn.setText(_translate("LoginUi", " ➕ Зарегистрироваться"))
+        self.label_4.setText(_translate("LoginUi", "Нет аккаунта?:"))
         self.groupBox_2.setTitle(_translate("LoginUi", "Регистрация:"))
+        self.label_6.setText(_translate("LoginUi", "Подтверждение пароля"))
+        self.RegisterBtnNewUser.setText(_translate("LoginUi", " ➕ Зарегистрироваться"))
+        self.label_7.setText(_translate("LoginUi", "Пароль"))
         self.RegistShowPwd.setText(_translate("LoginUi", "👁"))
         self.label_5.setText(_translate("LoginUi", "Имя пользователя"))
-        self.label_6.setText(_translate("LoginUi", "Подтверждение пароля"))
-        self.label_7.setText(_translate("LoginUi", "Пароль"))
-        self.RegisterBtnNewUser.setText(_translate("LoginUi", " ➕ Зарегистрироваться"))
         self.register_to_login_btn.setText(_translate("LoginUi", "🔑 Войти"))
         self.label_8.setText(_translate("LoginUi", "Уже есть аккаунт? "))

@@ -1,5 +1,5 @@
 class MainWindowModel:
-    def __init__(self, user_id=None, data=None):
+    def __init__(self, data=None):
         self.data = data
 
     def add_habit(self, user_id, name, category, frequency):

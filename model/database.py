@@ -60,4 +60,6 @@ class DataBase:
     def getter(self, query, params):
         return self.connection.execute(query, params).fetchall()
 
+    def getter_for_one(self, query, params):
+        return self.connection.execute(query, params).fetchone()
 

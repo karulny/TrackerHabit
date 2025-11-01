@@ -1,5 +1,6 @@
 from PyQt6.QtWidgets import QDialog, QVBoxLayout, QLabel, QLineEdit, QComboBox, QPushButton, QHBoxLayout
 
+
 class AddHabitDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)

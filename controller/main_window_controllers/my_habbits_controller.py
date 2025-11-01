@@ -7,6 +7,7 @@ from sqlite3 import IntegrityError
 
 class MyHabitsController:
     def __init__(self, window, model, user_id):
+        print(window)
         self.user_id = user_id
         self.window = window
         self.model = model
