@@ -3,8 +3,8 @@ class MainWindowModel:
         self.data = data
 
     def add_habit(self, user_id, name, category, frequency):
-        # Передаем нашей БД данные и параметры
-        # из-за этого штука выглядит сложно, но так нужно
+        """Передаем нашей БД данные и параметры их разделяем для того, чтобы не использовать f строки, которые уязвимы к
+         SQL инъекции из-за этого штука выглядит сложно, но так нужно"""
         query = """
                 INSERT INTO habits (user_id, name, category, frequency)
                 VALUES (?, ?, ?, ?) \

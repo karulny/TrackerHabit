@@ -1,23 +1,20 @@
 import sqlite3
-import os
-
 
 # Класс БД который реализует методы для работы с БД
 class DataBase:
-    def __init__(self):
+    def __init__(self, db_path):
         # Инициализируем БД
-        self._initialize_tables()
+        self._initialize_tables(db_path)
 
-    def _get_connection(self):
+    def _get_connection(self, db_path):
         # Подключаемся к БД
-        db_path = os.path.join(os.path.dirname(__file__), 'habit_database.db')
         self.connection = sqlite3.connect(db_path)
         self.connection.row_factory = sqlite3.Row
         self.cursor = self.connection.cursor()
 
     # Метод инициализации бд
-    def _initialize_tables(self):
-        self._get_connection()
+    def _initialize_tables(self, db_path):
+        self._get_connection(db_path)
         self.cursor.execute('''
                             CREATE TABLE IF NOT EXISTS users
                             (
@@ -53,9 +50,6 @@ class DataBase:
     def fetch_all(self, query, params=()):
         self.cursor.execute(query, params)
         return self.cursor.fetchall()
-
-    def add_user(self, username, password):
-        pass
 
     def getter(self, query, params):
         return self.connection.execute(query, params).fetchall()
