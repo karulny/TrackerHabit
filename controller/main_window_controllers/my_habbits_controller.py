@@ -72,14 +72,17 @@ class MyHabitsController:
             QMessageBox.warning(self.window, "Ошибка", "Выберите привычку для отметки.")
             return
 
-        row = current_index.row()
+        # Преобразуем индекс из proxy_model в исходный
+        source_index = self.proxy_model.mapToSource(current_index)
+
+        row = source_index.row()
         habit_name = self.table_model.item(row, 0).text()
 
         # Меняем отметку в БД
         self.model.toggle_mark_habit(self.user_id, habit_name)
 
         # Обновляем таблицу
-        self.update_mark_in_table(current_index.row())
+        self.update_mark_in_table(row)
 
     def remove_filter(self):
         self.window.SearchInput.clear()
