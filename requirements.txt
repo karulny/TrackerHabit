@@ -1,0 +1,5 @@
+# Core dependencies
+PyQt6>=6.1.0
+
+# Python version requirement
+python >= 3.13
