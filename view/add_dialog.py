@@ -1,11 +1,10 @@
 from PyQt6.QtWidgets import QDialog, QVBoxLayout, QLabel, QLineEdit, QComboBox, QPushButton, QHBoxLayout
 
-
 class AddHabitDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setWindowTitle("Добавить привычку")
-        self.setFixedSize(300, 200)
+        self.setMinimumSize(300, 150)  # Устанавливаем минимальный размер окна
 
         layout = QVBoxLayout()
 

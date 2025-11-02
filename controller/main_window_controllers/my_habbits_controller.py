@@ -58,13 +58,13 @@ class MyHabitsController:
             QMessageBox.warning(self.window, "Ошибка", "Выберите привычку для удаления.")
             return
 
-        row = current_index.row()
-        habit_name = self.table_model.item(row, 0).text()
-        # Удаляем привычку в БД
-        self.model.remove_habit(self.user_id, habit_name)
+        # ✅ Преобразуем индекс из proxy в source
+        source_index = self.proxy_model.mapToSource(current_index)
+        row = source_index.row()
 
-        # Обновляем список, но в угоду оптимизации просто удаляем ячейку по индексу
-        self.table_model.removeRow(current_index.row())
+        habit_name = self.table_model.item(row, 0).text()
+        self.model.remove_habit(self.user_id, habit_name)
+        self.table_model.removeRow(row)
 
     def mark_btn(self):
         current_index = self.window.HabitsTable.currentIndex()
