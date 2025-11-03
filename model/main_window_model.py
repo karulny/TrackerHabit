@@ -31,36 +31,37 @@ class MainWindowModel:
                            AND name = ? \
                          """
 
-    def __init__(self, data=None):
+    def __init__(self, data, user_id):
         self.data = data
+        self.user_id = user_id
 
-    def add_habit(self, user_id, name, category, frequency):
+    def add_habit(self, name, category, frequency):
         """Передаем нашей БД данные и параметры их разделяем для того, чтобы не использовать f строки, которые уязвимы к
          SQL инъекции из-за этого штука выглядит сложно, но так нужно"""
-        params = (user_id, name, category, frequency)
+        params = (self.user_id, name, category, frequency)
         self.data.execute_query_and_commit(self.INSERT_HABIT_QUERY, params)
 
-    def get_habits(self, user_id):
+    def get_habits(self):
         """Возвращает привычки и категории"""
-        params = (user_id,)
+        params = (self.user_id,)
         return self.data.getter(self.SELECT_HABITS_QUERY, params)
 
-    def toggle_mark_habit(self, user_id, name):
+    def toggle_mark_habit(self, name):
         """Переключает отметку выполнения привычки"""
-        params = (user_id, name)
+        params = (self.user_id, name)
         self.data.execute_query_and_commit(self.UPDATE_HABIT_MARK_QUERY, params)
 
     def close(self):
         self.data.close()
 
-    def get_categories(self, user_id):
+    def get_categories(self):
         """Возвращает все категории, которые существуют"""
-        params = (user_id,)
+        params = (self.user_id,)
         categories = self.data.getter(self.SELECT_CATEGORIES_QUERY, params)
         # Преобразование результата в список строк
         return [row['category'] for row in categories]
 
-    def remove_habit(self, user_id, habit_name):
+    def remove_habit(self, habit_name):
         """Удаляет привычку"""
-        params = (user_id, habit_name)
+        params = (self.user_id, habit_name)
         return self.data.execute_query_and_commit(self.DELETE_HABIT_QUERY, params)

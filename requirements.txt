@@ -1,5 +1,5 @@
 # Core dependencies
 PyQt6>=6.1.0
-
+pyqtgraph>=0.13.7
 # Python version requirement
-python >= 3.13
+# python>=3.13

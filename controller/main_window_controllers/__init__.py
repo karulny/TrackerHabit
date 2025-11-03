@@ -1,17 +1,17 @@
 from view.main_window import Ui_MainWindow
 from .my_habbits_controller import MyHabitsController
+from .statistic_controller import StatisticController
 from PyQt6.QtWidgets import QMainWindow, QMessageBox
 
 
 class MainWindowController(QMainWindow, Ui_MainWindow):
-    def __init__(self, user_id=0, model=None):
+    def __init__(self, model=None):
         super().__init__()
         self.setupUi(self)
         self.model = model
-        self.user_id = user_id
-        self.habit_controller = MyHabitsController(self, user_id=self.user_id, model=self.model)
+        self.habit_controller = MyHabitsController(self, model=self.model)
         # settings_controller = SettingsController(self)
-        # statistic_controller = StatisticController(self)
+        self.statistic_controller = StatisticController(self, model=self.model)
 
     def closeEvent(self, event):
         reply = QMessageBox.question(self, 'Выйти', 'Вы точно хотите выйти?', QMessageBox.StandardButton.Yes |

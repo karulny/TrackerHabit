@@ -4,10 +4,8 @@ from PyQt6.QtGui import QStandardItemModel, QStandardItem
 from PyQt6.QtCore import QSortFilterProxyModel, Qt
 from sqlite3 import IntegrityError
 
-
 class MyHabitsController:
-    def __init__(self, window, model, user_id):
-        self.user_id = user_id
+    def __init__(self, window, model):
         self.window = window
         self.model = model
         self.table_model = QStandardItemModel()
@@ -42,7 +40,6 @@ class MyHabitsController:
                 return
             try:
                 self.model.add_habit(
-                    user_id=self.user_id,
                     name=name,
                     category=data["category"].strip(),
                     frequency=data["frequency"]
@@ -63,7 +60,7 @@ class MyHabitsController:
         row = source_index.row()
 
         habit_name = self.table_model.item(row, 0).text()
-        self.model.remove_habit(self.user_id, habit_name)
+        self.model.remove_habit(habit_name)
         self.table_model.removeRow(row)
 
     def mark_btn(self):
@@ -79,7 +76,7 @@ class MyHabitsController:
         habit_name = self.table_model.item(row, 0).text()
 
         # Меняем отметку в БД
-        self.model.toggle_mark_habit(self.user_id, habit_name)
+        self.model.toggle_mark_habit(habit_name)
 
         # Обновляем таблицу
         self.update_mark_in_table(row)
@@ -90,7 +87,7 @@ class MyHabitsController:
         self.window.FilterBox.setCurrentIndex(0)
 
     def show_habits(self):
-        habits = self.model.get_habits(self.user_id)
+        habits = self.model.get_habits()
 
         self.table_model.clear()
         self.table_model.setHorizontalHeaderLabels(["Название", "Категория", "Частота", "Дата", "Выполнено"])
@@ -171,7 +168,7 @@ class MyHabitsController:
 
     def update_categories(self):
         """Обновляет пул категорий в FilterBox"""
-        categories = self.model.get_categories(self.user_id)
+        categories = self.model.get_categories()
         self.window.FilterBox.clear()
         self.window.FilterBox.addItem("Все")
         self.window.FilterBox.addItems(categories)

@@ -14,10 +14,10 @@ class StartUpController:
     def show_login_window(self):
         self.login_window.show()
 
-    def close_login_window_and_open_main_window(self, user_ud):
+    def close_login_window_and_open_main_window(self, user_id):
         try:
             self.login_window.hide()
-            self.main_window = MainWindowController(user_id=user_ud, model=self.model.get_user())
+            self.main_window = MainWindowController(model=self.model.get_user(user_id))
             self.main_window.show()
         except Exception as e:
             import traceback
