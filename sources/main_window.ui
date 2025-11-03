@@ -42,7 +42,7 @@
        <bool>true</bool>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="tab_general">
        <attribute name="title">
@@ -61,7 +61,7 @@
              </widget>
             </item>
             <item row="1" column="0">
-             <widget class="QLineEdit" name="SearchEdit"/>
+             <widget class="QLineEdit" name="SearchInput"/>
             </item>
             <item row="1" column="2">
              <widget class="QPushButton" name="DeleteFilterBtn">
@@ -200,7 +200,7 @@
          </layout>
         </item>
         <item>
-         <widget class="QWidget" name="InsertWidget" native="true">
+         <widget class="QWidget" name="GraphWidget" native="true">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
             <horstretch>0</horstretch>
