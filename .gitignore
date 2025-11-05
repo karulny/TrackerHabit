@@ -1,3 +1,9 @@
 # Byte-compiled / optimized / DLL files
 __pycache__/
 .idea
+/model/__pycache__/
+/view/__pycache__/
+/controller/__pycache__/
+/controller/main_controllers/__pycache__/
+/model/habit_database.db/
+.vscode/

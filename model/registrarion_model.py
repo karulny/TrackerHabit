@@ -3,8 +3,16 @@ import hashlib
 
 class AuthModel:
     GET_PASSWORD_AND_USERNAME = "INSERT INTO users (username, password) VALUES (?, ?)"
+
     GET_PASSWORD_ON_USERNAME = "SELECT password FROM users WHERE username = ?"
+
     GET_ID_ON_USERNAME = "SELECT id FROM users WHERE username = ?"
+
+    UPDATE_LAST_LOGIN_QUERY = """
+        UPDATE users 
+        SET last_login = DATE('now') 
+        WHERE id = ?
+    """
 
     def __init__(self, data=None):
         self.db = data
@@ -34,6 +42,9 @@ class AuthModel:
             return False
 
     def get_user_id(self, login):
-
         params = (login,)
         return self.db.getter_for_one(self.GET_ID_ON_USERNAME, params)[0]
+    
+    def update_last_login(self, user_id):
+        params = (user_id,)
+        self.db.execute_query_and_commit(self.UPDATE_LAST_LOGIN_QUERY, params)

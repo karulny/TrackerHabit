@@ -14,7 +14,7 @@ class StartUpController:
     def show_login_window(self):
         self.login_window.show()
 
-    def close_login_window_and_open_main_window(self, user_id):
+    def close_login_window_and_open_main_window(self, user_id=1):
         try:
             self.login_window.hide()
             self.main_window = MainWindowController(model=self.model.get_user(user_id))

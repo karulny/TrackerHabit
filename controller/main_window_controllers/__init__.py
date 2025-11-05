@@ -11,7 +11,7 @@ class MainWindowController(QMainWindow, Ui_MainWindow):
         self.model = model
         self.habit_controller = MyHabitsController(self, model=self.model)
         # settings_controller = SettingsController(self)
-        self.statistic_controller = StatisticController(self, model=self.model)
+        # self.statistic_controller = StatisticController(self, model=self.model)
 
     def closeEvent(self, event):
         reply = QMessageBox.question(self, 'Выйти', 'Вы точно хотите выйти?', QMessageBox.StandardButton.Yes |

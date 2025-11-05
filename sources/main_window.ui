@@ -42,7 +42,7 @@
        <bool>true</bool>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab_general">
        <attribute name="title">
@@ -74,7 +74,7 @@
              <widget class="QComboBox" name="FilterBox"/>
             </item>
             <item row="2" column="0" colspan="3">
-             <widget class="QTableView" name="HabitList"/>
+             <widget class="QTableView" name="HabitsTable"/>
             </item>
            </layout>
           </item>
@@ -94,21 +94,21 @@
              </spacer>
             </item>
             <item>
-             <widget class="QPushButton" name="AddHabbitBtn">
+             <widget class="QPushButton" name="AddHabitBtn">
               <property name="text">
                <string>Добавить</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="DeleteHabbitBtn">
+             <widget class="QPushButton" name="DeleteHabitBtn">
               <property name="text">
                <string>Удалить</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="MarkHabbitBtn">
+             <widget class="QPushButton" name="MarkHabitBtn">
               <property name="text">
                <string>Отметить</string>
               </property>
@@ -135,7 +135,7 @@
              </widget>
             </item>
             <item>
-             <widget class="QProgressBar" name="progressBar">
+             <widget class="QProgressBar" name="AllHabitsProgress">
               <property name="value">
                <number>24</number>
               </property>
@@ -178,7 +178,7 @@
            </spacer>
           </item>
           <item row="0" column="5">
-           <widget class="QPushButton" name="UpdateStaticBtn">
+           <widget class="QPushButton" name="UpdateGraphBtn">
             <property name="text">
              <string>Обновить график</string>
             </property>
@@ -206,13 +206,6 @@
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLabel" name="StaticLabel">
-          <property name="text">
-           <string/>
           </property>
          </widget>
         </item>

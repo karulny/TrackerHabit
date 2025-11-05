@@ -15,6 +15,7 @@ class Model:
     def close(self):
 
         self.user.close()
+        self.auth.update_last_login(self.user.user_id)
 
     def get_auth(self):
         return self.auth

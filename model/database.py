@@ -16,26 +16,50 @@ class DataBase:
     def _initialize_tables(self, db_path):
         self._get_connection(db_path)
         self.cursor.execute('''
-                            CREATE TABLE IF NOT EXISTS users
-                            (
-                                id       INTEGER PRIMARY KEY AUTOINCREMENT,
-                                username TEXT UNIQUE NOT NULL,
-                                password TEXT        NOT NULL
-                            )
-                            ''')
+            CREATE TABLE IF NOT EXISTS users
+            (
+                id       INTEGER PRIMARY KEY AUTOINCREMENT,
+                username TEXT UNIQUE NOT NULL,
+                password TEXT        NOT NULL,
+                last_login TEXT DEFAULT (date('now'))
+            )
+        ''')
+
         self.cursor.execute("""
-                            CREATE TABLE IF NOT EXISTS habits
-                            (
-                                id         INTEGER PRIMARY KEY AUTOINCREMENT,
-                                user_id    INTEGER,
-                                name       TEXT UNIQUE,
-                                category   TEXT,
-                                frequency  TEXT,
-                                created_at TEXT    DEFAULT CURRENT_TIMESTAMP,
-                                marked     INTEGER DEFAULT 0,
-                                FOREIGN KEY (user_id) REFERENCES users (id)
-                            )
-                            """)
+            CREATE TABLE IF NOT EXISTS habits
+            (
+                id         INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id    INTEGER,
+                name       TEXT UNIQUE,
+                category   TEXT,
+                daily_frequency  INTEGER DEFAULT 0,
+                created_at TEXT DEFAULT (date('now')),
+                FOREIGN KEY (user_id) REFERENCES users (id)
+            )
+        """)
+
+        self.cursor.execute("""
+            CREATE TABLE IF NOT EXISTS habit_progress
+            (
+                id         INTEGER PRIMARY KEY AUTOINCREMENT,
+                habit_id   INTEGER,
+                date       TEXT DEFAULT (datetime('now')),
+                progress   INTEGER DEFAULT 0,
+                target     INTEGER DEFAULT 1,
+                FOREIGN KEY (habit_id) REFERENCES habits (id)
+            )               
+        """)
+
+        self.cursor.execute("""
+            CREATE TABLE IF NOT EXISTS habits_progress_monthly
+            (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                habit_id INTEGER,
+                date TEXT DEFAULT (date('now')),
+                completed INTEGER DEFAULT 0,
+                FOREIGN KEY (habit_id) REFERENCES habits (id)
+            )  
+        """)
 
     def close(self):
         self.connection.close()

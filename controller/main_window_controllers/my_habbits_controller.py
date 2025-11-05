@@ -10,14 +10,15 @@ class MyHabitsController:
         self.model = model
         self.table_model = QStandardItemModel()
         self.proxy_model = QSortFilterProxyModel()
+
         self.init_ui()
         self.show_habits()
 
     def init_ui(self):
         # Подключение кнопок
-        self.window.AddHabbitBtn.clicked.connect(self.add_btn)
-        self.window.DeleteHabbitBtn.clicked.connect(self.delete_btn)
-        self.window.MarkHabbitBtn.clicked.connect(self.mark_btn)
+        self.window.AddHabitBtn.clicked.connect(self.add_btn)
+        self.window.DeleteHabitBtn.clicked.connect(self.delete_btn)
+        self.window.MarkHabitBtn.clicked.connect(self.mark_btn)
         self.window.SearchInput.textChanged.connect(self.get_search_filter)
         self.window.DeleteFilterBtn.clicked.connect(self.remove_filter)
         self.window.FilterBox.activated.connect(self.category_filter)
@@ -29,6 +30,7 @@ class MyHabitsController:
         self.proxy_model.setFilterCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
         self.proxy_model.setFilterKeyColumn(0)  # фильтр по названию привычки (0-й столбец)
         self.window.HabitsTable.setModel(self.proxy_model)
+        
 
     def add_btn(self):
         dialog = AddHabitDialog(self.window)
@@ -42,9 +44,8 @@ class MyHabitsController:
                 self.model.add_habit(
                     name=name,
                     category=data["category"].strip(),
-                    frequency=data["frequency"]
+                    frequency=data["daily_frequency"]
                 )
-
                 self.show_habits()
             except IntegrityError:
                 QMessageBox.warning(self.window, "Ошибка", "Имена привычек не должны повторятся")
@@ -55,7 +56,7 @@ class MyHabitsController:
             QMessageBox.warning(self.window, "Ошибка", "Выберите привычку для удаления.")
             return
 
-        # ✅ Преобразуем индекс из proxy в source
+        # Преобразуем индекс из proxy в source
         source_index = self.proxy_model.mapToSource(current_index)
         row = source_index.row()
 
@@ -74,12 +75,14 @@ class MyHabitsController:
 
         row = source_index.row()
         habit_name = self.table_model.item(row, 0).text()
-
+        if self.model.is_habit_completed_today(habit_name):
+            QMessageBox.warning(self.window, "Информация", "Эта привычка уже выполнена сегодня.")
+            return
         # Меняем отметку в БД
         self.model.toggle_mark_habit(habit_name)
 
-        # Обновляем таблицу
-        self.update_mark_in_table(row)
+        # Обновляем отображение
+        self.show_habits()
 
     def remove_filter(self):
         self.window.SearchInput.clear()
@@ -93,20 +96,14 @@ class MyHabitsController:
         self.table_model.setHorizontalHeaderLabels(["Название", "Категория", "Частота", "Дата", "Выполнено"])
 
         for habit in habits:
-
+            progress, target = self.model.get_progress_and_target(habit["name"])
             row = [
                 QStandardItem(habit["name"]),
                 QStandardItem(habit["category"]),
-                QStandardItem(habit["frequency"]),
-                QStandardItem(habit["created_at"]),
+                QStandardItem(str(habit["daily_frequency"])),
+                QStandardItem(habit["created_at"]),\
+                QStandardItem(f"{progress}/{target}" if progress < target else "✅")
             ]
-
-            marked_item = QStandardItem()
-            if habit["marked"] == 1:
-                marked_item.setText("✅")
-            else:
-                marked_item.setText("❌")
-            row.append(marked_item)
 
             self.table_model.appendRow(row)
         # Растягиваем колонки для наилучшего вида
@@ -154,17 +151,6 @@ class MyHabitsController:
             f"Вы выбрали привычку:\n\n🧩 {habit_name}\n📂 Категория: {category}\n⏱ Частота: {frequency}\n Выполнена: "
             f"{marked}"
         )
-
-    def update_mark_in_table(self, row):
-        """Обновляет статус 'выполнено' в таблице (✅ / ❌)"""
-        current_item = self.table_model.item(row, 4)
-        if not current_item:
-            return
-
-        if current_item.text() == "✅":
-            current_item.setText("❌")
-        else:
-            current_item.setText("✅")
 
     def update_categories(self):
         """Обновляет пул категорий в FilterBox"""
