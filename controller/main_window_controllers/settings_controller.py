@@ -2,19 +2,19 @@ from PyQt6.QtWidgets import QMessageBox
 import os
 
 class SettingsController:
-    def __init__(self, window, model) -> None:
+    def __init__(self, window, model, user_id) -> None:
         self.window = window
         self.model = model
+        self.user_id = user_id
         self.init_ui()
-        print("шзпаьуш")
 
     def init_ui(self):
         try:
-            self.window.UserNameLabel.setText(f"Имя пользователя: {self.model.user.username}")
+            self.window.UserNameLabel.setText(f"Имя пользователя: {self.model.user_id}")
         except Exception:
             self.window.UserNameLabel.setText("Ошибка при получении имени пользователя")
                 # Установка темы по умолчанию
-        if getattr(self.model, "is_dark_mode_enabled", False):
+        if self.model.get_theme() == "dark":
             self.window.DarkUiRadioBtn.setChecked(True)
         else:
             self.window.LightUiRadioBtn.setChecked(True)
@@ -23,7 +23,8 @@ class SettingsController:
         self.window.UiColorGroup.buttonToggled.connect(self.switch_theme)
 
         # Применяем текущую тему при запуске
-        self.apply_theme("dark" if self.window.DarkUiRadioBtn.isChecked() else "light")
+        print(self.model.get_theme())
+        self.apply_theme(self.model.get_theme().strip())
 
     def switch_theme(self, button, checked):
         """Вызывается при переключении радиокнопок"""
@@ -32,9 +33,8 @@ class SettingsController:
 
         theme_name = "dark" if button == self.window.DarkUiRadioBtn else "light"
         self.apply_theme(theme_name)
+        self.model.save_user_theme(theme_name)
 
-        # сохраняем выбор пользователя в модель или настройки
-        self.model.is_dark_mode_enabled = (theme_name == "dark")
 
     def apply_theme(self, theme_name: str):
         """Загружает и применяет .qss тему"""

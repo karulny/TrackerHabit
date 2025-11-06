@@ -21,9 +21,9 @@ class AuthModel:
     """
 
     SET_THEME = """
-                UPDATE users
-                SET theme = CASE 0 WHEN 1 THEN 1
-                WHERE username = ?
+        UPDATE users
+        SET theme = ?
+        WHERE username = ?
     """
 
     def __init__(self, data=None):
@@ -66,12 +66,8 @@ class AuthModel:
     def get_theme(self):
         params = (self.username, )
         theme = self.db.getter_for_one(self.GET_THEME_OF_USER, params)
-        print("theme")
         return theme[0] if theme else None
-
-    def is_dark_mode_enabled(self) -> bool:
-        return True if self.get_theme == 0 else False
     
-    def set_theme_of_user(self):
-        params = (self.username, )
+    def save_user_theme(self, theme_name):
+        params = (theme_name, self.username, )
         self.db.execute_query_and_commit(self.SET_THEME, params)

@@ -13,7 +13,7 @@ class MainWindowController(QMainWindow, Ui_MainWindow):
         self.auth_model = model.get_auth()
         self.habit_controller = MyHabitsController(self, self.user_model)
         self.statistic_controller = StatisticController(self, self.user_model)
-        self.settings_controller = SettingsController(self, self.auth_model)
+        self.settings_controller = SettingsController(self, self.auth_model, self.user_model.user_id)
         self.connect_signal()
 
 

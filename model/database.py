@@ -22,7 +22,7 @@ class DataBase:
                 username TEXT UNIQUE NOT NULL,
                 password TEXT        NOT NULL,
                 last_login TEXT DEFAULT (date('now')),
-                theme    INTEGER DEFAULT  0
+                theme    TEXT DEFAULT  dark
             )
         ''')
 
