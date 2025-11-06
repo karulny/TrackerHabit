@@ -3,10 +3,12 @@ from .my_habbits_controller import MyHabitsController
 from .statistic_controller import StatisticController
 from .settings_controller import SettingsController
 from PyQt6.QtWidgets import QMainWindow, QMessageBox
+from PyQt6.QtCore import pyqtSignal
 
 
 class MainWindowController(QMainWindow, Ui_MainWindow):
-    def __init__(self, model, user_id):
+    unlogin_from_main = pyqtSignal()
+    def __init__(self, model):
         super().__init__()
         self.setupUi(self)
         self.user_model = model.get_user()
@@ -22,7 +24,7 @@ class MainWindowController(QMainWindow, Ui_MainWindow):
         reply = QMessageBox.question(self, 'Выйти', 'Вы точно хотите выйти?', QMessageBox.StandardButton.Yes |
                                      QMessageBox.StandardButton.No)
         if reply == QMessageBox.StandardButton.Yes:
-            self.user_model.close()
+            # self.user_model.close()
             event.accept()
         else:
             event.ignore()
@@ -31,3 +33,15 @@ class MainWindowController(QMainWindow, Ui_MainWindow):
         self.tabWidget.tabBarClicked.connect(
             self.statistic_controller.update_habits
         )
+            # Подключаем сигнал выхода
+        self.settings_controller.unlogin.connect(self.handle_unlogin)
+
+    def handle_unlogin(self):
+        """Вызывается при сигнале выхода из настроек"""
+        reply = QMessageBox.question(self, "Выход", "Вы точно хотите выйти из аккаунта?",
+                                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+        if reply == QMessageBox.StandardButton.Yes:
+            self.close()
+            self.user_model.close()
+            # Эмитим событие вверх — для StartUpController
+            self.unlogin_from_main.emit()  # Можно добавить этот сигнал, если нужно

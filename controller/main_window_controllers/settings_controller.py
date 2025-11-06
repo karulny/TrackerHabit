@@ -1,14 +1,19 @@
 from PyQt6.QtWidgets import QMessageBox
+from PyQt6.QtCore import pyqtSignal, QObject
 import os
 
-class SettingsController:
+class SettingsController(QObject):
+    unlogin = pyqtSignal()
+
     def __init__(self, window, model, user_id) -> None:
+        super().__init__()
         self.window = window
         self.model = model
         self.user_id = user_id
         self.init_ui()
 
     def init_ui(self):
+        self.window.UnloginBrn.clicked.connect(self.exit_btn)
         try:
             self.window.UserNameLabel.setText(f"Имя пользователя: {self.model.user_id}")
         except Exception:
@@ -49,3 +54,7 @@ class SettingsController:
                 self.window.setStyleSheet(style)
         except Exception as e:
             QMessageBox.critical(self.window, "Ошибка", f"Не удалось применить тему: {e}")
+
+    def exit_btn(self):
+        """Обработчик кнопки выхода"""
+        self.unlogin.emit()

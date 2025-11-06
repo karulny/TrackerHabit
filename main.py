@@ -1,6 +1,7 @@
 from PyQt6.QtWidgets import QApplication
 import sys
 from controller import StartUpController
+import controller
 
 
 def main():
