@@ -1,0 +1,290 @@
+QMainWindow {
+    background-color: #fafafa;
+}
+
+QWidget {
+    background-color: #fafafa;
+    color: #1a1a1a;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    font-size: 10pt;
+}
+
+/* Вкладки */
+QTabWidget::pane {
+    border: none;
+    background-color: #ffffff;
+    border-radius: 0px;
+}
+
+QTabBar::tab {
+    background-color: transparent;
+    color: #666666;
+    padding: 12px 20px;
+    margin-right: 8px;
+    border: none;
+    border-bottom: 2px solid transparent;
+    font-weight: 500;
+}
+
+QTabBar::tab:selected {
+    background-color: transparent;
+    color: #1a1a1a;
+    border-bottom: 2px solid #1a1a1a;
+    font-weight: 600;
+}
+
+QTabBar::tab:hover:!selected {
+    color: #333333;
+}
+
+/* Кнопки */
+QPushButton {
+    background-color: #f0f0f0;
+    color: #1a1a1a;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    padding: 8px 16px;
+    font-weight: 500;
+    font-size: 9pt;
+}
+
+QPushButton:hover {
+    background-color: #e8e8e8;
+    border: 1px solid #d0d0d0;
+}
+
+QPushButton:pressed {
+    background-color: #e0e0e0;
+}
+
+QPushButton:disabled {
+    background-color: #f5f5f5;
+    color: #b0b0b0;
+    border: 1px solid #e8e8e8;
+}
+
+/* Акцентные кнопки - только важные действия */
+#MarkHabitBtn {
+    background-color: #2ecc71;
+    color: white;
+    border: none;
+}
+
+#MarkHabitBtn:hover {
+    background-color: #27ae60;
+}
+
+#DeleteHabitBtn, #ResetBtn, #UnloginBrn {
+    background-color: transparent;
+    color: #e74c3c;
+    border: 1px solid #e74c3c;
+}
+
+#DeleteHabitBtn:hover, #ResetBtn:hover, #UnloginBrn:hover {
+    background-color: #e74c3c;
+    color: white;
+}
+
+#AddHabitBtn {
+    background-color: #3498db;
+    color: white;
+    border: none;
+}
+
+#AddHabitBtn:hover {
+    background-color: #2980b9;
+}
+
+/* Поля ввода */
+QLineEdit {
+    background-color: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    padding: 8px 12px;
+    color: #1a1a1a;
+    font-size: 9pt;
+}
+
+QLineEdit:focus {
+    border: 1px solid #1a1a1a;
+    background-color: #ffffff;
+}
+
+/* Комбобоксы */
+QComboBox {
+    background-color: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    padding: 8px 12px;
+    color: #1a1a1a;
+    font-size: 9pt;
+    min-width: 150px;
+}
+
+QComboBox:hover {
+    border: 1px solid #c0c0c0;
+}
+
+QComboBox::drop-down {
+    border: none;
+    padding-right: 10px;
+}
+
+QComboBox QAbstractItemView {
+    background-color: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    selection-background-color: #1a1a1a;
+    selection-color: white;
+    padding: 4px;
+    outline: none;
+}
+
+/* Таблица */
+QTableView {
+    background-color: #ffffff;
+    border: none;
+    border-radius: 0px;
+    gridline-color: #f0f0f0;
+    selection-background-color: #f5f5f5;
+    selection-color: #1a1a1a;
+    outline: none;
+}
+
+QTableView::item {
+    padding: 10px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+QTableView::item:selected {
+    background-color: #f5f5f5;
+    color: #1a1a1a;
+}
+
+QTableView::item:hover {
+    background-color: #fafafa;
+}
+
+QHeaderView::section {
+    background-color: #fafafa;
+    color: #666666;
+    padding: 12px;
+    border: none;
+    border-bottom: 1px solid #e0e0e0;
+    font-weight: 600;
+    font-size: 9pt;
+}
+
+/* Прогресс бар - яркий акцент */
+QProgressBar {
+    border: none;
+    border-radius: 3px;
+    background-color: #f0f0f0;
+    text-align: center;
+    color: #1a1a1a;
+    font-weight: 600;
+    height: 20px;
+}
+
+QProgressBar::chunk {
+    background-color: #2ecc71;
+    border-radius: 3px;
+}
+
+/* GroupBox */
+QGroupBox {
+    background-color: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    margin-top: 16px;
+    padding-top: 12px;
+    font-weight: 600;
+    color: #1a1a1a;
+}
+
+QGroupBox::title {
+    subcontrol-origin: margin;
+    subcontrol-position: top left;
+    padding: 4px 12px;
+    background-color: transparent;
+    color: #666666;
+}
+
+/* Radio кнопки */
+QRadioButton {
+    color: #1a1a1a;
+    spacing: 8px;
+    font-size: 9pt;
+}
+
+QRadioButton::indicator {
+    width: 18px;
+    height: 18px;
+    border-radius: 9px;
+    border: 2px solid #d0d0d0;
+    background-color: #ffffff;
+}
+
+QRadioButton::indicator:checked {
+    background-color: #ffffff;
+    border: 2px solid #1a1a1a;
+}
+
+QRadioButton::indicator:checked:after {
+    width: 8px;
+    height: 8px;
+    border-radius: 4px;
+    background-color: #1a1a1a;
+}
+
+QRadioButton::indicator:hover {
+    border: 2px solid #666666;
+}
+
+/* Labels */
+QLabel {
+    color: #1a1a1a;
+    background-color: transparent;
+}
+
+#label_4 {
+    font-size: 10pt;
+    font-weight: 500;
+    color: #666666;
+}
+
+#UserNameLabel {
+    font-size: 13pt;
+    font-weight: 600;
+    color: #1a1a1a;
+    padding: 8px 0px;
+    background-color: transparent;
+}
+
+/* Статус бар */
+QStatusBar {
+    background-color: #ffffff;
+    color: #666666;
+    border-top: 1px solid #f0f0f0;
+}
+
+/* Scrollbar */
+QScrollBar:vertical {
+    border: none;
+    background-color: transparent;
+    width: 8px;
+}
+
+QScrollBar::handle:vertical {
+    background-color: #d0d0d0;
+    border-radius: 4px;
+    min-height: 30px;
+}
+
+QScrollBar::handle:vertical:hover {
+    background-color: #b0b0b0;
+}
+
+QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
+    height: 0px;
+}

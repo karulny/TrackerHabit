@@ -14,8 +14,21 @@ class AuthModel:
         WHERE id = ?
     """
 
+    GET_THEME_OF_USER = """
+                        SELECT theme
+                        FROM users 
+                        WHERE username = ?
+    """
+
+    SET_THEME = """
+                UPDATE users
+                SET theme = CASE 0 WHEN 1 THEN 1
+                WHERE username = ?
+    """
+
     def __init__(self, data=None):
         self.db = data
+        self.username = None
 
     def hash_password(self, password: str):
         """Возвращает хэш SHA256 от пароля"""
@@ -37,6 +50,7 @@ class AuthModel:
             params = (username,)
             password_from_bd = self.db.getter_for_one(self.GET_PASSWORD_ON_USERNAME, params)
             if password_from_bd and password_hash == password_from_bd[0]:
+                self.username = username
                 return True
         except Exception as e:
             return False
@@ -48,3 +62,16 @@ class AuthModel:
     def update_last_login(self, user_id):
         params = (user_id,)
         self.db.execute_query_and_commit(self.UPDATE_LAST_LOGIN_QUERY, params)
+
+    def get_theme(self):
+        params = (self.username, )
+        theme = self.db.getter_for_one(self.GET_THEME_OF_USER, params)
+        print("theme")
+        return theme[0] if theme else None
+
+    def is_dark_mode_enabled(self) -> bool:
+        return True if self.get_theme == 0 else False
+    
+    def set_theme_of_user(self):
+        params = (self.username, )
+        self.db.execute_query_and_commit(self.SET_THEME, params)

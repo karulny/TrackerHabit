@@ -7,7 +7,7 @@ from PyQt6.QtWidgets import QMessageBox
 class StartUpController:
     def __init__(self):
         self.model = Model()
-        self.login_window = LoginController(model=self.model.get_auth())
+        self.login_window = LoginController(self.model.get_auth())
         self.main_window = None
         self.login_window.login_successful.connect(self.close_login_window_and_open_main_window)
 
@@ -17,7 +17,8 @@ class StartUpController:
     def close_login_window_and_open_main_window(self, user_id=1):
         try:
             self.login_window.hide()
-            self.main_window = MainWindowController(model=self.model.get_user(user_id))
+            self.model.init_user(user_id)
+            self.main_window = MainWindowController(model=self.model, user_id=user_id)
             self.main_window.show()
         except Exception as e:
             import traceback

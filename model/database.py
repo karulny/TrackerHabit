@@ -21,7 +21,8 @@ class DataBase:
                 id       INTEGER PRIMARY KEY AUTOINCREMENT,
                 username TEXT UNIQUE NOT NULL,
                 password TEXT        NOT NULL,
-                last_login TEXT DEFAULT (date('now'))
+                last_login TEXT DEFAULT (date('now')),
+                theme    INTEGER DEFAULT  0
             )
         ''')
 

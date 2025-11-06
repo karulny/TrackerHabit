@@ -1,5 +1,5 @@
 from view.add_dialog import AddHabitDialog
-from PyQt6.QtWidgets import QMessageBox, QAbstractItemView, QHeaderView
+from PyQt6.QtWidgets import QMessageBox, QAbstractItemView, QHeaderView, QProgressBar
 from PyQt6.QtGui import QStandardItemModel, QStandardItem
 from PyQt6.QtCore import QSortFilterProxyModel, Qt
 from sqlite3 import IntegrityError
@@ -97,15 +97,17 @@ class MyHabitsController:
 
         for habit in habits:
             progress, target = self.model.get_progress_and_target(habit["name"])
+            print(progress, target)
             row = [
                 QStandardItem(habit["name"]),
                 QStandardItem(habit["category"]),
                 QStandardItem(str(habit["daily_frequency"])),
-                QStandardItem(habit["created_at"]),\
-                QStandardItem(f"{progress}/{target}" if progress < target else "✅")
+                QStandardItem(habit["created_at"]),
+                QStandardItem(f"{progress}/{target}" if progress < target else f"✅") 
             ]
 
             self.table_model.appendRow(row)
+
         # Растягиваем колонки для наилучшего вида
         header = self.window.HabitsTable.horizontalHeader()
         header.setSectionResizeMode(0, QHeaderView.ResizeMode.Stretch)

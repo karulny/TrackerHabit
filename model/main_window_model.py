@@ -15,10 +15,11 @@ class MainWindowModel:
                           """
 
     UPDATE_HABIT_MARK_QUERY = """
-                              UPDATE habit_progress
-                              SET progress = progress + 1
-                              WHERE habit_id = ? \
-                              """
+        UPDATE habit_progress
+        SET progress = progress + 1
+        WHERE habit_id = ? AND date = date('now', 'localtime');
+    """
+
 
     SELECT_CATEGORIES_QUERY = """
                               SELECT DISTINCT category
@@ -114,9 +115,6 @@ class MainWindowModel:
         if self.today_is_new_day():
             self.reset_daily_progress()
 
-        if self.month_is_new():
-            self.reset_monthly_progress()
-
     def add_habit(self, name, category, frequency):
         """Передаем нашей БД данные и параметры их разделяем для того, чтобы не использовать f строки, которые уязвимы к
          SQL инъекции из-за этого штука выглядит сложно, но так нужно"""
@@ -136,6 +134,7 @@ class MainWindowModel:
 
     def toggle_mark_habit(self, habit_name):
         """Переключает отметку выполнения привычки"""
+        print("AF")
         habit_id = self.get_habit_id(habit_name)
         params = (habit_id,)
         self.db.execute_query_and_commit(self.UPDATE_HABIT_MARK_QUERY, params)
@@ -208,39 +207,6 @@ class MainWindowModel:
             params = (habit_id, 0, frequency)
             self.db.execute_query_and_commit(self.ADD_HABIT_PROGRESS, params)
             self.db.execute_query_and_commit(self.ADD_MONTHLY_PROGRESS, (habit_id, 0))
-
-    def month_is_new(self):
-        """Проверяет, наступил ли новый месяц с последнего входа пользователя"""
-        params = (self.user_id,)
-        row = self.db.getter_for_one(self.GET_LAST_DATE_QUERY, params)
-        if not row:
-            return False
-
-        last_date = datetime.strptime(row['date'], "%Y-%m-%d").date()
-        today = datetime.today().date()
-
-        # Проверяем, другой ли это месяц
-        if last_date.month != today.month or last_date.year != today.year:
-            return True
-        return False
-
-    def reset_monthly_progress(self):
-        """Сбрасывает ежемесячный прогресс всех привычек"""
-        # Удаляем записи старого месяца
-        self.db.execute_query_and_commit("DELETE FROM habits_progress_monthly;")
-
-        # Создаём новые записи для текущего месяца
-        habits_id = [self.get_habit_id(habit["name"]) for habit in self.get_habits()]
-        for habit_id in habits_id:
-            self.db.execute_query_and_commit(
-                "INSERT INTO habits_progress_monthly (habit_id, date, completed) VALUES (?, date('now'), 0);",
-                (habit_id,)
-            )
-
-        # Обновляем дату последнего входа, чтобы не сбрасывать повторно
-        self.db.execute_query_and_commit(
-            "UPDATE users SET last_login = date('now') WHERE id = ?;", (self.user_id,)
-        )
 
     def get_habit_static_daily(self, habit_name):
         habit_id = self.get_habit_id(habit_name)
