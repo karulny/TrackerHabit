@@ -59,9 +59,9 @@ class StatisticController:
 
         dates = []
         completed = []
-
+        if habit_data is None:
+            return
         for item in habit_data:
-            print(item)
             # Безопасная распаковка
             if isinstance(item, (tuple, list)) and len(item) == 2:
                 d, c = item
@@ -94,7 +94,9 @@ class StatisticController:
         if not dates:
             return
 
+        # ВООБЩЕМ ДЕЛАЕТСЯ СРЕЗ ТАК-каа
         x = list(range(len(dates)))
+        print(x)
 
         bg = pg.BarGraphItem(x=x, height=completed, width=0.6, brush='g')
         self.graph_widget.addItem(bg)
