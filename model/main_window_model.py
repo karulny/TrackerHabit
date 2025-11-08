@@ -5,58 +5,55 @@ class MainWindowModel:
     # Константы запросов
     # Добавляем новую запись в habit_progress с текущим временем
     ADD_HABIT_PROGRESS = """
-                         INSERT INTO habit_progress (habit_id, date, progress, target)
-                         VALUES (?, datetime('now', 'localtime'), ?, ?); \
-                         """
+        INSERT INTO habit_progress (habit_id, date, progress, target)
+        VALUES (?, datetime('now','localtime'), ?, ?);
+    """
 
     # Получаем последнюю запись за сегодня
     GET_LAST_TODAY_PROGRESS = """
-                              SELECT progress, target
-                              FROM habit_progress
-                              WHERE habit_id = ?
-                                AND date(date) = date('now', 'localtime') -- фильтруем только по сегодняшней дате
-                              ORDER BY id DESC
-                              LIMIT 1; \
-                              """
+        SELECT progress, target
+        FROM habit_progress
+        WHERE habit_id = ? 
+        AND date(date) = date('now','localtime')  -- фильтруем только по сегодняшней дате
+        ORDER BY id DESC
+        LIMIT 1;
+    """
 
     # Проверка в monthly (можно оставить только по дате)
     CHECK_IF_TODAY_MONTHLY_EXISTS = """
-                                    SELECT id
-                                    FROM habits_progress_monthly
-                                    WHERE habit_id = ?
-                                      AND date = date('now', 'localtime'); \
-                                    """
+        SELECT id
+        FROM habits_progress_monthly
+        WHERE habit_id = ? AND date = date('now','localtime');
+    """
 
     # Получить цель прогресс
     GET_LAST_HABIT_PROGRESS_AND_TARGET = """
-                                         SELECT progress, target
-                                         FROM habit_progress
-                                         WHERE habit_id = ?
-                                           AND date = date('now', 'localtime')
-                                         ORDER BY id DESC
-                                         LIMIT 1; \
-                                         """
+        SELECT progress, target
+        FROM habit_progress
+        WHERE habit_id = ? AND date = date('now','localtime')
+        ORDER BY id DESC
+        LIMIT 1;
+    """
 
     # Добавляем запись в habits_progress_monthly
     ADD_MONTHLY_PROGRESS = """
-                           INSERT INTO habits_progress_monthly (habit_id, date, completed)
-                           VALUES (?, date('now', 'localtime'), ?); \
-                           """
+        INSERT INTO habits_progress_monthly (habit_id, date, completed)
+        VALUES (?, date('now','localtime'), ?);
+    """
 
     # Обновляем запись в habits_progress_monthly
     UPDATE_LAST_HABIT_PROGRESS = """
-                                 UPDATE habits_progress_monthly
-                                 SET completed = ?
-                                 WHERE habit_id = ?
-                                   AND date = datetime('now', 'localtime'); \
-                                 """
+        UPDATE habits_progress_monthly
+        SET completed = ?
+        WHERE habit_id = ? AND date = datetime('now','localtime');
+    """
 
     # Получить daily_frequency (target)
     GET_HABIT_TARGET = """
-                       SELECT daily_frequency
-                       FROM habits
-                       WHERE id = ?; \
-                       """
+        SELECT daily_frequency
+        FROM habits
+        WHERE id = ?;
+    """
 
     INSERT_HABIT_QUERY = """
                          INSERT INTO habits (user_id, name, category, daily_frequency)
@@ -91,8 +88,8 @@ class MainWindowModel:
                                SELECT progress, target
                                FROM habit_progress
                                WHERE habit_id = ? \
-                               ORDER BY id DESC
-                               LIMIT 1 \
+                                ORDER BY id DESC
+                                LIMIT 1 \
                                """
 
     DELETE_HABIT_PROGRESS = """
@@ -106,7 +103,7 @@ class MainWindowModel:
                                           FROM habits_progress_monthly
                                           WHERE habit_id = ?; \
                                           """
-
+    
     DELETE_HABITS = "DELETE  FROM habits WHERE user_id = ?"
 
     DELETE_HABIT_QUERY = """
@@ -132,30 +129,28 @@ class MainWindowModel:
                           """
 
     GET_DAILY_PROGRESS = """
-                         SELECT date
-                         FROM habit_progress \
-                         WHERE habit_id = ? \
-                         """
-
+                        SELECT date, progress
+                        FROM habit_progress \
+                        WHERE habit_id = ?
+                        """
+    
     GET_HABIT_STATISTIC_FOR_N_DAYS = """
-                                     SELECT completed, date
-                                     FROM habits_progress_monthly
-                                     WHERE habit_id = ?
-                                       AND date >= date('now', '-' || ? || ' days')
-                                     ORDER BY date ASC; \
-                                     """
-
+        SELECT completed, date
+        FROM habits_progress_monthly
+        WHERE habit_id = ?
+          AND date >= date('now', '-' || ? || ' days')
+        ORDER BY date ASC;
+    """
+    
     DELETE_OLD_MONTHLY_PROGRESS = """
-                                  DELETE
-                                  FROM habits_progress_monthly
-                                  WHERE date < date('now', '-30 days'); \
-                                  """
+        DELETE FROM habits_progress_monthly
+        WHERE date < date('now', '-30 days');
+    """
 
     def __init__(self, data, user_id):
         self.db = data
         self.user_id = user_id
         if self.today_is_new_day():
-            print("да")
             self.reset_daily_progress()
         self.cleanup_old_monthly_progress()
 
@@ -163,6 +158,9 @@ class MainWindowModel:
         params = (self.user_id, name, category, frequency)
         self.db.execute_query_and_commit(self.INSERT_HABIT_QUERY, params)
         habit_id = self.get_habit_id(name)
+
+        progress_params = (habit_id, 0, frequency)
+        self.db.execute_query_and_commit(self.ADD_HABIT_PROGRESS, progress_params)
 
         # Добавляем запись в monthly, только если её нет
         exists = self.db.getter_for_one(self.CHECK_IF_TODAY_MONTHLY_EXISTS, (habit_id,))
@@ -199,15 +197,20 @@ class MainWindowModel:
 
         # Добавляем новую строку с текущим временем
         params = (habit_id, new_progress, target)
+        
         self.db.execute_query_and_commit(self.ADD_HABIT_PROGRESS, params)
 
         # Если достигнута цель — обновляем/добавляем запись в monthly
         if new_progress >= target:
+            
             exists = self.db.getter_for_one(self.CHECK_IF_TODAY_MONTHLY_EXISTS, (habit_id,))
             if exists:
+                
                 self.db.execute_query_and_commit(self.UPDATE_LAST_HABIT_PROGRESS, (1, habit_id))
             else:
+                
                 self.db.execute_query_and_commit(self.ADD_MONTHLY_PROGRESS, (habit_id, 1))
+
 
     def get_progress_and_target(self, habit_name):
         """
@@ -226,9 +229,6 @@ class MainWindowModel:
         tgt_row = self.db.getter_for_one(self.GET_HABIT_TARGET, (habit_id,))
         target = tgt_row['daily_frequency'] if tgt_row else 1
         return 0, target
-
-    def close(self):
-        self.db.close()
 
     def get_categories(self):
         """Возвращает все категории, которые существуют"""
@@ -257,7 +257,7 @@ class MainWindowModel:
 
         # если записей нет — совпадения нет
         return False
-
+    
     def reset_daily_progress(self):
         """Сбрасывает ежедневный прогресс для всех привычек"""
         self.db.execute_query_and_commit(self.RESET_DAILY_PROGRESS)
@@ -271,11 +271,11 @@ class MainWindowModel:
 
     def today_is_new_day(self):
         """Проверяет, является ли сегодня новым днём для сброса прогресса"""
-        print(date.today().isoformat())
+        
         today = date.today().isoformat()
         params = (self.user_id,)
         row = self.db.getter_for_one(self.GET_LAST_DATE_QUERY, params)
-        print(row['date'])
+        
         if row and row['date'] < today:
             return True
         return False
@@ -296,17 +296,23 @@ class MainWindowModel:
                 # Добавляем только если нет
                 self.db.execute_query_and_commit(self.ADD_MONTHLY_PROGRESS, (habit_id, 0))
 
+
     def get_habit_static_daily(self, habit_name):
         habit_id = self.get_habit_id(habit_name)
+        if not habit_id:
+            return []
+
+        progress = self.get_progress_and_target(habit_name)[0]
+
+        if progress <= 0:
+            return []  # возвращаем пустой список — график не строится
+
         params = (habit_id,)
         rows = self.db.getter(self.GET_DAILY_PROGRESS, params)
-        if rows:
-            result = [(row['date'], 1) for row in rows]
-            return result
-        return
+        return [(row['date'], 1) for row in rows if row and int(row["progress"]) > 0]  # только ненулевые строки
 
     def reset_data(self):
-        params = (self.user_id,)
+        params = (self.user_id, )
         self.db.execute_query_and_commit(self.DELETE_HABITS, params)
         self.db.execute_query_and_commit(self.DELETE_HABIT_PROGRESS, params)
         self.db.execute_query_and_commit(self.DELETE_HABIT_PROGRESS_MONTHLY_QUERY, params)
@@ -332,7 +338,7 @@ class MainWindowModel:
             return []
 
         return [(row["date"], row["completed"]) for row in rows]
-
+    
     def cleanup_old_monthly_progress(self):
         """Удаляет записи старше 30 дней из таблицы habits_progress_monthly"""
         self.db.execute_query_and_commit(self.DELETE_OLD_MONTHLY_PROGRESS)

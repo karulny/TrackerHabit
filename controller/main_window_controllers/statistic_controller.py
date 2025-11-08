@@ -93,10 +93,8 @@ class StatisticController:
         # Если после фильтрации нет данных — график не строим
         if not dates:
             return
-
-        # ВООБЩЕМ ДЕЛАЕТСЯ СРЕЗ ТАК-каа
+        
         x = list(range(len(dates)))
-        print(x)
 
         bg = pg.BarGraphItem(x=x, height=completed, width=0.6, brush='g')
         self.graph_widget.addItem(bg)
