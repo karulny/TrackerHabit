@@ -321,3 +321,5 @@ class MainWindowModel:
         и не перегружать её устаревшими данными.
         """
         self.db.execute_query_and_commit(self.db.DELETE_OLD_MONTHLY_PROGRESS)
+
+    
