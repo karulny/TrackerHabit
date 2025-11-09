@@ -1,193 +1,89 @@
-from datetime import date, datetime
+from datetime import date
 
 
 class MainWindowModel:
-    # Константы запросов
-    # Добавляем новую запись в habit_progress с текущим временем
-    ADD_HABIT_PROGRESS = """
-        INSERT INTO habit_progress (habit_id, date, progress, target)
-        VALUES (?, datetime('now','localtime'), ?, ?);
     """
-
-    # Получаем последнюю запись за сегодня
-    GET_LAST_TODAY_PROGRESS = """
-        SELECT progress, target
-        FROM habit_progress
-        WHERE habit_id = ? 
-        AND date(date) = date('now','localtime')  -- фильтруем только по сегодняшней дате
-        ORDER BY id DESC
-        LIMIT 1;
-    """
-
-    # Проверка в monthly (можно оставить только по дате)
-    CHECK_IF_TODAY_MONTHLY_EXISTS = """
-        SELECT id
-        FROM habits_progress_monthly
-        WHERE habit_id = ? AND date = date('now','localtime');
-    """
-
-    # Получить цель прогресс
-    GET_LAST_HABIT_PROGRESS_AND_TARGET = """
-        SELECT progress, target
-        FROM habit_progress
-        WHERE habit_id = ? AND date = date('now','localtime')
-        ORDER BY id DESC
-        LIMIT 1;
-    """
-
-    # Добавляем запись в habits_progress_monthly
-    ADD_MONTHLY_PROGRESS = """
-        INSERT INTO habits_progress_monthly (habit_id, date, completed)
-        VALUES (?, date('now','localtime'), ?);
-    """
-
-    # Обновляем запись в habits_progress_monthly
-    UPDATE_LAST_HABIT_PROGRESS = """
-        UPDATE habits_progress_monthly
-        SET completed = ?
-        WHERE habit_id = ? AND date = datetime('now','localtime');
-    """
-
-    # Получить daily_frequency (target)
-    GET_HABIT_TARGET = """
-        SELECT daily_frequency
-        FROM habits
-        WHERE id = ?;
-    """
-
-    INSERT_HABIT_QUERY = """
-                         INSERT INTO habits (user_id, name, category, daily_frequency)
-                         VALUES (?, ?, ?, ?) \
-                         """
-
-    SELECT_HABITS_QUERY = """
-                          SELECT *
-                          FROM habits
-                          WHERE user_id = ? \
-                          """
-
-    SELECT_CATEGORIES_QUERY = """
-                              SELECT DISTINCT category
-                              FROM habits
-                              WHERE user_id = ? \
-                              """
-
-    RESET_DAILY_PROGRESS = """DELETE
-                              FROM habit_progress
-                              WHERE date(date) < date('now', 'localtime'); \
-                           """
-
-    UPDATE_LAST_HABIT_PROGRESS = """
-                                 UPDATE habits_progress_monthly
-                                 SET date      = date('now'),
-                                     completed = ?
-                                 WHERE habit_id = ? \
-                                 """
-
-    IS_HABIT_COMPLETED_TODAY = """
-                               SELECT progress, target
-                               FROM habit_progress
-                               WHERE habit_id = ? \
-                                ORDER BY id DESC
-                                LIMIT 1 \
-                               """
-
-    DELETE_HABIT_PROGRESS = """
-                            DELETE
-                            FROM habit_progress
-                            WHERE habit_id = ? \
-                            """
-
-    DELETE_HABIT_PROGRESS_MONTHLY_QUERY = """
-                                          DELETE
-                                          FROM habits_progress_monthly
-                                          WHERE habit_id = ?; \
-                                          """
+    Модель главного окна для работы с привычками.
     
-    DELETE_HABITS = "DELETE  FROM habits WHERE user_id = ?"
-
-    DELETE_HABIT_QUERY = """
-                         DELETE
-                         FROM habits
-                         WHERE user_id = ?
-                           AND name = ?; \
-                         """
-
-    GET_HABIT_ID_QUERY = """
-                         SELECT id
-                         FROM habits
-                         WHERE user_id = ?
-                           AND name = ? \
-                         """
-
-    GET_LAST_DATE_QUERY = """
-                          SELECT last_login AS date
-                          FROM users
-                          WHERE id = ?
-                          ORDER BY date DESC
-                          LIMIT 1 \
-                          """
-
-    GET_DAILY_PROGRESS = """
-                        SELECT date, progress
-                        FROM habit_progress \
-                        WHERE habit_id = ?
-                        """
-    
-    GET_HABIT_STATISTIC_FOR_N_DAYS = """
-        SELECT completed, date
-        FROM habits_progress_monthly
-        WHERE habit_id = ?
-          AND date >= date('now', '-' || ? || ' days')
-        ORDER BY date ASC;
-    """
-    
-    DELETE_OLD_MONTHLY_PROGRESS = """
-        DELETE FROM habits_progress_monthly
-        WHERE date < date('now', '-30 days');
+    Управляет привычками пользователя, отслеживает прогресс выполнения,
+    автоматически сбрасывает ежедневный прогресс в новом дне и 
+    очищает устаревшие данные.
     """
 
     def __init__(self, data, user_id):
+        """
+        Инициализация модели главного окна.
+        
+        Args:
+            data: Объект базы данных (DataBase)
+            user_id: ID текущего пользователя
+        """
         self.db = data
         self.user_id = user_id
+        
+        # Проверяем, не начался ли новый день - если да, сбрасываем прогресс
         if self.today_is_new_day():
             self.reset_daily_progress()
+        
+        # Удаляем старые записи (старше 30 дней)
         self.cleanup_old_monthly_progress()
 
     def add_habit(self, name, category, frequency):
+        """
+        Добавляет новую привычку для пользователя.
+        
+        Создает привычку, инициализирует её начальный прогресс (0)
+        и добавляет запись в месячную статистику.
+        
+        Args:
+            name: Название привычки
+            category: Категория привычки
+            frequency: Целевое количество выполнений в день (daily_frequency)
+        """
         params = (self.user_id, name, category, frequency)
-        self.db.execute_query_and_commit(self.INSERT_HABIT_QUERY, params)
+        self.db.execute_query_and_commit(self.db.INSERT_HABIT_QUERY, params)
         habit_id = self.get_habit_id(name)
 
+        # Добавляем начальный прогресс (0 из frequency)
         progress_params = (habit_id, 0, frequency)
-        self.db.execute_query_and_commit(self.ADD_HABIT_PROGRESS, progress_params)
+        self.db.execute_query_and_commit(self.db.ADD_HABIT_PROGRESS, progress_params)
 
         # Добавляем запись в monthly, только если её нет
-        exists = self.db.getter_for_one(self.CHECK_IF_TODAY_MONTHLY_EXISTS, (habit_id,))
+        exists = self.db.getter_for_one(self.db.CHECK_IF_TODAY_MONTHLY_EXISTS, (habit_id,))
         if not exists:
             monthly_params = (habit_id, 0)
-            self.db.execute_query_and_commit(self.ADD_MONTHLY_PROGRESS, monthly_params)
+            self.db.execute_query_and_commit(self.db.ADD_MONTHLY_PROGRESS, monthly_params)
 
     def get_habits(self):
-        """Возвращает привычки и категории"""
+        """
+        Возвращает все привычки пользователя.
+        
+        Returns:
+            list: Список привычек пользователя в виде sqlite3.Row объектов
+        """
         params = (self.user_id,)
-        return self.db.getter(self.SELECT_HABITS_QUERY, params)
+        return self.db.getter(self.db.SELECT_HABITS_QUERY, params)
 
     def toggle_mark_habit(self, habit_name):
         """
-        Добавляет новую строку в habit_progress и увеличивает progress на +1
-        относительно последнего значения за сегодня.
-        Если цель достигнута — отмечает completed = 1 в habits_progress_monthly.
+        Отмечает выполнение привычки, увеличивая прогресс на +1.
+        
+        Добавляет новую запись в таблицу habit_progress с увеличенным 
+        значением progress. Если достигнута цель (progress >= target),
+        автоматически помечает привычку как выполненную в месячной статистике.
+        
+        Args:
+            habit_name: Название привычки
         """
         habit_id = self.get_habit_id(habit_name)
         if not habit_id:
             return
 
         # Получаем последнюю запись за сегодня
-        last_row = self.db.getter_for_one(self.GET_LAST_TODAY_PROGRESS, (habit_id,))
+        last_row = self.db.getter_for_one(self.db.GET_LAST_TODAY_PROGRESS, (habit_id,))
 
         # Получаем целевой daily_frequency
-        target_row = self.db.getter_for_one(self.GET_HABIT_TARGET, (habit_id,))
+        target_row = self.db.getter_for_one(self.db.GET_HABIT_TARGET, (habit_id,))
         target = target_row["daily_frequency"] if target_row else 1
 
         if last_row:
@@ -198,83 +94,129 @@ class MainWindowModel:
         # Добавляем новую строку с текущим временем
         params = (habit_id, new_progress, target)
         
-        self.db.execute_query_and_commit(self.ADD_HABIT_PROGRESS, params)
+        self.db.execute_query_and_commit(self.db.ADD_HABIT_PROGRESS, params)
 
         # Если достигнута цель — обновляем/добавляем запись в monthly
         if new_progress >= target:
-            
-            exists = self.db.getter_for_one(self.CHECK_IF_TODAY_MONTHLY_EXISTS, (habit_id,))
+            exists = self.db.getter_for_one(self.db.CHECK_IF_TODAY_MONTHLY_EXISTS, (habit_id,))
             if exists:
-                
-                self.db.execute_query_and_commit(self.UPDATE_LAST_HABIT_PROGRESS, (1, habit_id))
+                self.db.execute_query_and_commit(self.db.UPDATE_LAST_HABIT_PROGRESS_MONTHLY, (1, habit_id))
             else:
-                
-                self.db.execute_query_and_commit(self.ADD_MONTHLY_PROGRESS, (habit_id, 1))
-
+                self.db.execute_query_and_commit(self.db.ADD_MONTHLY_PROGRESS, (habit_id, 1))
 
     def get_progress_and_target(self, habit_name):
         """
-        Возвращает (progress, target) последней записи за сегодня.
-        Если записей за сегодня нет — возвращает (0, daily_frequency).
+        Возвращает текущий прогресс и цель привычки за сегодня.
+        
+        Args:
+            habit_name: Название привычки
+            
+        Returns:
+            tuple: (progress, target) - текущий прогресс и целевое значение.
+                   Если записей за сегодня нет, возвращает (0, daily_frequency)
         """
         habit_id = self.get_habit_id(habit_name)
         if not habit_id:
             return 0, 0
 
-        row = self.db.getter_for_one(self.GET_LAST_TODAY_PROGRESS, (habit_id,))
+        row = self.db.getter_for_one(self.db.GET_LAST_TODAY_PROGRESS, (habit_id,))
         if row:
             return row["progress"], row["target"]
 
         # Если записей нет — возвращаем 0 и target из таблицы habits
-        tgt_row = self.db.getter_for_one(self.GET_HABIT_TARGET, (habit_id,))
+        tgt_row = self.db.getter_for_one(self.db.GET_HABIT_TARGET, (habit_id,))
         target = tgt_row['daily_frequency'] if tgt_row else 1
         return 0, target
 
     def get_categories(self):
-        """Возвращает все категории, которые существуют"""
+        """
+        Возвращает список всех уникальных категорий привычек пользователя.
+        
+        Returns:
+            list: Список строк с названиями категорий
+        """
         params = (self.user_id,)
-        categories = self.db.getter(self.SELECT_CATEGORIES_QUERY, params)
-        # Преобразование результата в список строк
+        categories = self.db.getter(self.db.SELECT_CATEGORIES_QUERY, params)
         return [row['category'] for row in categories]
 
     def remove_habit(self, habit_name):
-        """Удаляет привычку"""
+        """
+        Удаляет привычку и все связанные с ней данные.
+        
+        Удаляет саму привычку, весь её прогресс из habit_progress
+        и месячную статистику из habits_progress_monthly.
+        
+        Args:
+            habit_name: Название привычки
+        """
         habit_id = self.get_habit_id(habit_name)
         params = (self.user_id, habit_name)
-        self.db.execute_query_and_commit(self.DELETE_HABIT_PROGRESS, (habit_id,))
-        self.db.execute_query_and_commit(self.DELETE_HABIT_PROGRESS_MONTHLY_QUERY, (habit_id,))
-        self.db.execute_query_and_commit(self.DELETE_HABIT_QUERY, params)
+        
+        # Удаляем в правильном порядке (сначала зависимые записи)
+        self.db.execute_query_and_commit(self.db.DELETE_HABIT_PROGRESS, (habit_id,))
+        self.db.execute_query_and_commit(self.db.DELETE_HABIT_PROGRESS_MONTHLY_QUERY, (habit_id,))
+        self.db.execute_query_and_commit(self.db.DELETE_HABIT_QUERY, params)
 
     def is_habit_completed_today(self, habit_name):
+        """
+        Проверяет, выполнена ли привычка сегодня.
+        
+        Привычка считается выполненной, если текущий прогресс
+        больше или равен целевому значению (progress >= target).
+        
+        Args:
+            habit_name: Название привычки
+            
+        Returns:
+            bool: True если привычка выполнена, False в противном случае
+        """
         habit_id = self.get_habit_id(habit_name)
         if not habit_id:
             return False
 
-        row = self.db.getter_for_one(self.GET_LAST_TODAY_PROGRESS, (habit_id,))
-        # если есть последняя запись — сравниваем её progress с target
+        row = self.db.getter_for_one(self.db.GET_LAST_TODAY_PROGRESS, (habit_id,))
         if row:
             return row.get('progress', 0) >= row.get('target', 0)
-
-        # если записей нет — совпадения нет
         return False
     
     def reset_daily_progress(self):
-        """Сбрасывает ежедневный прогресс для всех привычек"""
-        self.db.execute_query_and_commit(self.RESET_DAILY_PROGRESS)
+        """
+        Сбрасывает ежедневный прогресс всех привычек.
+        
+        Удаляет все записи прогресса за предыдущие дни и
+        инициализирует новый прогресс для всех привычек пользователя
+        с начальными значениями (progress=0).
+        """
+        self.db.execute_query_and_commit(self.db.RESET_DAILY_PROGRESS)
         self.init_new_progress_for_habits()
 
     def get_habit_id(self, habit_name):
-        """Получает ID привычки по её названию"""
+        """
+        Получает ID привычки по её названию.
+        
+        Args:
+            habit_name: Название привычки
+            
+        Returns:
+            int или None: ID привычки, или None если привычка не найдена
+        """
         params = (self.user_id, habit_name)
-        row = self.db.getter_for_one(self.GET_HABIT_ID_QUERY, params)
+        row = self.db.getter_for_one(self.db.GET_HABIT_ID_QUERY, params)
         return row['id'] if row else None
 
     def today_is_new_day(self):
-        """Проверяет, является ли сегодня новым днём для сброса прогресса"""
+        """
+        Проверяет, начался ли новый день для сброса прогресса.
         
+        Сравнивает дату последнего входа пользователя с сегодняшней датой.
+        Если даты отличаются - значит начался новый день.
+        
+        Returns:
+            bool: True если начался новый день, False в противном случае
+        """
         today = date.today().isoformat()
         params = (self.user_id,)
-        row = self.db.getter_for_one(self.GET_LAST_DATE_QUERY, params)
+        row = self.db.getter_for_one(self.db.GET_LAST_DATE_QUERY, params)
         
         if row and row['date'] < today:
             return True
@@ -287,17 +229,26 @@ class MainWindowModel:
             for habit in self.get_habits()
         ]
         for habit_id, frequency in habits_id_and_frequency:
-            # Проверяем, есть ли уже запись за сегодня в habit_progress
-            self.db.execute_query_and_commit(self.ADD_HABIT_PROGRESS, (habit_id, 0, frequency))
+            self.db.execute_query_and_commit(self.db.ADD_HABIT_PROGRESS, (habit_id, 0, frequency))
 
-            # Проверяем, есть ли запись в monthly за сегодня
-            exists = self.db.getter_for_one(self.CHECK_IF_TODAY_MONTHLY_EXISTS, (habit_id,))
+            exists = self.db.getter_for_one(self.db.CHECK_IF_TODAY_MONTHLY_EXISTS, (habit_id,))
             if not exists:
-                # Добавляем только если нет
-                self.db.execute_query_and_commit(self.ADD_MONTHLY_PROGRESS, (habit_id, 0))
-
+                self.db.execute_query_and_commit(self.db.ADD_MONTHLY_PROGRESS, (habit_id, 0))
 
     def get_habit_static_daily(self, habit_name):
+        """
+        Получает ежедневную статистику привычки.
+        
+        Возвращает все даты, когда привычка была отмечена (progress > 0).
+        Используется для отображения на графике.
+        
+        Args:
+            habit_name: Название привычки
+            
+        Returns:
+            list: Список кортежей [(дата, 1), ...] где 1 означает наличие прогресса.
+                  Возвращает пустой список если привычка не найдена или прогресс = 0
+        """
         habit_id = self.get_habit_id(habit_name)
         if not habit_id:
             return []
@@ -308,31 +259,53 @@ class MainWindowModel:
             return []  # возвращаем пустой список — график не строится
 
         params = (habit_id,)
-        rows = self.db.getter(self.GET_DAILY_PROGRESS, params)
-        return [(row['date'], 1) for row in rows if row and int(row["progress"]) > 0]  # только ненулевые строки
+        rows = self.db.getter(self.db.GET_DAILY_PROGRESS, params)
+        return [(row['date'], 1) for row in rows if row and int(row["progress"]) > 0]
 
     def reset_data(self):
-        params = (self.user_id, )
-        self.db.execute_query_and_commit(self.DELETE_HABITS, params)
-        self.db.execute_query_and_commit(self.DELETE_HABIT_PROGRESS, params)
-        self.db.execute_query_and_commit(self.DELETE_HABIT_PROGRESS_MONTHLY_QUERY, params)
+        """
+        Полностью удаляет все привычки и данные пользователя.
+        
+        Удаляет:
+        - Все привычки пользователя
+        - Весь прогресс по привычкам
+        - Всю месячную статистику
+        
+        Используется для полного сброса данных пользователя.
+        """
+        params = (self.user_id,)
+        self.db.execute_query_and_commit(self.db.DELETE_HABITS, params)
+        self.db.execute_query_and_commit(self.db.DELETE_HABIT_PROGRESS, params)
+        self.db.execute_query_and_commit(self.db.DELETE_HABIT_PROGRESS_MONTHLY_QUERY, params)
 
     def get_habit_static_for_N_days(self, habit_name, days):
         """
-        Возвращает [(дата, выполнено)] за последние N дней
+        Возвращает статистику выполнения привычки за последние N дней.
+        
+        Получает данные из месячной статистики (habits_progress_monthly),
+        где completed=1 означает что привычка была выполнена в этот день.
+        
+        Args:
+            habit_name: Название привычки
+            days: Количество дней для статистики
+            
+        Returns:
+            list: Список кортежей [(дата, completed), ...] 
+                  где completed - 0 или 1 (выполнена или нет).
+                  Возвращает пустой список если привычка не найдена
         """
         habit_id = self.get_habit_id(habit_name)
         if not habit_id:
             return []
 
-        # Преобразуем days в int (на всякий случай, если пришёл текст)
+        # Преобразуем days в int (на всякий случай)
         try:
             days = int(days)
         except ValueError:
             days = 7  # значение по умолчанию
 
         params = (habit_id, days)
-        rows = self.db.getter(self.GET_HABIT_STATISTIC_FOR_N_DAYS, params)
+        rows = self.db.getter(self.db.GET_HABIT_STATISTIC_FOR_N_DAYS, params)
 
         if not rows:
             return []
@@ -340,5 +313,11 @@ class MainWindowModel:
         return [(row["date"], row["completed"]) for row in rows]
     
     def cleanup_old_monthly_progress(self):
-        """Удаляет записи старше 30 дней из таблицы habits_progress_monthly"""
-        self.db.execute_query_and_commit(self.DELETE_OLD_MONTHLY_PROGRESS)
+        """
+        Удаляет старые записи из месячной статистики.
+        
+        Автоматически удаляет все записи из таблицы habits_progress_monthly,
+        которые старше 30 дней. Помогает поддерживать базу данных в чистоте
+        и не перегружать её устаревшими данными.
+        """
+        self.db.execute_query_and_commit(self.db.DELETE_OLD_MONTHLY_PROGRESS)

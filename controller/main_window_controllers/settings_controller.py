@@ -85,9 +85,9 @@ class SettingsController(QObject):
         confirm_pass = self.window.RegistPasswordConfirmEdit.text()
         if password == confirm_pass and len(password) >= 6:
             self.auth_model.change_password(password)
-            QMessageBox.information(self.window, "Success", "Password changed successfully.")
+            QMessageBox.information(self.window, "Success", "Пароль успещно сменен.")
         else:
-            QMessageBox.warning(self.window, "Error", "Passwords do not match.")
+            QMessageBox.warning(self.window, "Error", "Пароли не  совпадают.")
 
     def reset_btn(self):
         reply = QMessageBox.question(self.window, 'Сбросить', 'ВСЕ ВАШИ ПРИВЫЧКИ БУДУТ УДАЛЕНЫ. ВЫ ТОЧНО ЭТОГО ХОТИТЕ?', QMessageBox.StandardButton.Yes |
