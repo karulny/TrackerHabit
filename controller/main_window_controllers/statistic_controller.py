@@ -46,13 +46,13 @@ class StatisticController:
             self.window.HabitBox.setCurrentIndex(0)
         else:
             self.window.HabitBox.addItem("Нет привычек")
-        
 
     def init_text_time_box(self):
         self.window.TimeBox.addItems(["За сегодня", "за 7 дней", "за 30 дней"])
         self.window.TimeBox.setCurrentIndex(0)
 
-            # --- ОТОБРАЖЕНИЕ ГРАФИКА ---
+        # --- ОТОБРАЖЕНИЕ ГРАФИКА ---
+
     def plot_habit_progress(self, habit_data):
         """Строит график прогресса привычки."""
         self.graph_widget.clear()
@@ -93,7 +93,7 @@ class StatisticController:
         # Если после фильтрации нет данных — график не строим
         if not dates:
             return
-        
+
         x = list(range(len(dates)))
 
         bg = pg.BarGraphItem(x=x, height=completed, width=0.6, brush='g')
@@ -108,7 +108,6 @@ class StatisticController:
         self.graph_widget.setTitle("Статистика привычки")
         self.graph_widget.showGrid(x=True, y=True)
 
-
     def collect_data_and_call_graph(self):
         habit_name = self.window.HabitBox.currentText()
         if self.window.TimeBox.currentIndex() == 0:
@@ -117,6 +116,5 @@ class StatisticController:
             text_from_time_box = self.window.TimeBox.currentText()
             days = text_from_time_box.split()[1]
             habit_data = self.model.get_habit_static_for_N_days(habit_name, days)
-        
-        
+
         self.plot_habit_progress(habit_data)

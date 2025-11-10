@@ -4,6 +4,7 @@ from model import Model
 from PyQt6.QtWidgets import QMessageBox
 import traceback
 
+
 class StartUpController:
 
     def __init__(self):
@@ -11,7 +12,6 @@ class StartUpController:
         self.login_window = LoginController(self.model.get_auth())
         self.main_window = None
         self.login_window.login_successful.connect(self.close_login_window_and_open_main_window)
-        
 
     def show_login_window(self):
         self.login_window.show()
@@ -24,12 +24,11 @@ class StartUpController:
             self.main_window.show()
             self.main_window.unlogin_from_main.connect(self.restart_login_window)
 
-            
+
         except Exception as e:
-            
+
             traceback.print_exc()
             QMessageBox.critical(None, "Ошибка", f"Не удалось открыть главное окно:\n{e}")
-
 
     def restart_login_window(self):
         self.main_window.close()

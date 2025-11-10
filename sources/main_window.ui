@@ -377,20 +377,6 @@
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="MakeBackup">
-            <property name="text">
-             <string>Сделать Бэкап</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="OpenBackup">
-            <property name="text">
-             <string>Загрузить бэкап </string>
-            </property>
-           </widget>
-          </item>
-          <item>
            <spacer name="horizontalSpacer_4">
             <property name="orientation">
              <enum>Qt::Horizontal</enum>

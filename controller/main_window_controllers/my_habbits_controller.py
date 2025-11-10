@@ -4,6 +4,7 @@ from PyQt6.QtGui import QStandardItemModel, QStandardItem
 from PyQt6.QtCore import QSortFilterProxyModel, Qt
 from sqlite3 import IntegrityError
 
+
 class MyHabitsController:
     def __init__(self, window, model):
         self.window = window
@@ -30,7 +31,6 @@ class MyHabitsController:
         self.proxy_model.setFilterCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
         self.proxy_model.setFilterKeyColumn(0)  # фильтр по названию привычки (0-й столбец)
         self.window.HabitsTable.setModel(self.proxy_model)
-        
 
     def add_btn(self):
         dialog = AddHabitDialog(self.window)
@@ -102,7 +102,7 @@ class MyHabitsController:
                 QStandardItem(habit["category"]),
                 QStandardItem(str(habit["daily_frequency"])),
                 QStandardItem(habit["created_at"]),
-                QStandardItem(f"{progress}/{target}" if progress < target else f"✅") 
+                QStandardItem(f"{progress}/{target}" if progress < target else f"✅")
             ]
 
             self.table_model.appendRow(row)

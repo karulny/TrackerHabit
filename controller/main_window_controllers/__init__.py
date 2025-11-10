@@ -8,6 +8,7 @@ from PyQt6.QtCore import pyqtSignal
 
 class MainWindowController(QMainWindow, Ui_MainWindow):
     unlogin_from_main = pyqtSignal()
+
     def __init__(self, model):
         super().__init__()
         self.setupUi(self)
@@ -18,8 +19,6 @@ class MainWindowController(QMainWindow, Ui_MainWindow):
         self.statistic_controller = StatisticController(self, self.user_model)
         self.settings_controller = SettingsController(self, self.auth_model, self.user_model)
         self.connect_signal()
-
-
 
     def closeEvent(self, event):
         reply = QMessageBox.question(self, 'Выйти', 'Вы точно хотите выйти?', QMessageBox.StandardButton.Yes |
@@ -34,13 +33,13 @@ class MainWindowController(QMainWindow, Ui_MainWindow):
         self.tabWidget.tabBarClicked.connect(
             self.updater
         )
-            # Подключаем сигнал выхода
+        # Подключаем сигнал выхода
         self.settings_controller.unlogin.connect(self.handle_unlogin)
 
     def handle_unlogin(self):
         """Вызывается при сигнале выхода из настроек"""
         reply = QMessageBox.question(self, "Выход", "Вы точно хотите выйти из аккаунта?",
-                                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+                                     QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
         if reply == QMessageBox.StandardButton.Yes:
             self.close()
             self.user_model.close()

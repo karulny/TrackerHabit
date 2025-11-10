@@ -187,12 +187,6 @@ class Ui_MainWindow(object):
         self.ImportProfileBtn = QtWidgets.QPushButton(parent=self.tab_3)
         self.ImportProfileBtn.setObjectName("ImportProfileBtn")
         self.horizontalLayout_2.addWidget(self.ImportProfileBtn)
-        self.MakeBackup = QtWidgets.QPushButton(parent=self.tab_3)
-        self.MakeBackup.setObjectName("MakeBackup")
-        self.horizontalLayout_2.addWidget(self.MakeBackup)
-        self.OpenBackup = QtWidgets.QPushButton(parent=self.tab_3)
-        self.OpenBackup.setObjectName("OpenBackup")
-        self.horizontalLayout_2.addWidget(self.OpenBackup)
         spacerItem5 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
         self.horizontalLayout_2.addItem(spacerItem5)
         self.ResetBtn = QtWidgets.QPushButton(parent=self.tab_3)
@@ -210,7 +204,7 @@ class Ui_MainWindow(object):
         MainWindow.setStatusBar(self.statusbar)
 
         self.retranslateUi(MainWindow)
-        self.tabWidget.setCurrentIndex(0)
+        self.tabWidget.setCurrentIndex(2)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -239,8 +233,6 @@ class Ui_MainWindow(object):
         self.LightUiRadioBtn.setText(_translate("MainWindow", "☀️ Светлая"))
         self.ExportProfileBtn.setText(_translate("MainWindow", "Экспорт профиля"))
         self.ImportProfileBtn.setText(_translate("MainWindow", "Импорт профиля"))
-        self.MakeBackup.setText(_translate("MainWindow", "Сделать Бэкап"))
-        self.OpenBackup.setText(_translate("MainWindow", "Загрузить бэкап "))
         self.ResetBtn.setText(_translate("MainWindow", "Сбросить данные"))
         self.UnloginBrn.setText(_translate("MainWindow", "Выйти из аккаунта"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_3), _translate("MainWindow", "⚙️ Настройки"))

@@ -9,8 +9,9 @@ def main():
     controller = StartUpController()
     controller.show_login_window()
     sys.exit(app.exec())
-    startup.model.close()
-    sys.exit(exit_code)
+    # startup.model.close()
+    # sys.exit(exit_code)
+
 
 if __name__ == '__main__':
     main()

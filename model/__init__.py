@@ -3,6 +3,7 @@ from .registrarion_model import AuthModel
 from .database import DataBase
 import os
 
+
 class Model:
     """Объединённая модель, которая даёт доступ к обеим подмоделям."""
 
@@ -15,12 +16,12 @@ class Model:
     def close(self):
         if self.user:
             self.auth.update_last_login(self.user.user_id)
-            
+
     def get_auth(self):
         return self.auth
 
     def init_user(self, user_id):
         self.user = MainWindowModel(self.database, user_id)
-    
+
     def get_user(self):
         return self.user

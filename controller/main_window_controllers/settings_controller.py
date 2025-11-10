@@ -1,6 +1,7 @@
-from PyQt6.QtWidgets import QMessageBox, QLineEdit
+from PyQt6.QtWidgets import QMessageBox, QLineEdit, QFileDialog
 from PyQt6.QtCore import pyqtSignal, QObject
 import os
+
 
 class SettingsController(QObject):
     unlogin = pyqtSignal()
@@ -18,22 +19,25 @@ class SettingsController(QObject):
         self.window.ShowPwd.clicked.connect(self.show_password)
         self.window.ChangePasswordBtn.clicked.connect(self.change_password_btn)
         self.window.ResetBtn.clicked.connect(self.reset_btn)
+        self.window.ImportProfileBtn.clicked.connect(self.import_btn)
+        self.window.ExportProfileBtn.clicked.connect(self.export_btn)
+
 
         # Вывод имени пользователя
         try:
             self.window.UserNameLabel.setText(f"Имя пользователя: {self.auth_model.username}")
         except Exception:
             self.window.UserNameLabel.setText("Ошибка при получении имени пользователя")
-                
+
         # Установка темы пользователя        
         if self.auth_model.get_theme() == "dark":
             self.window.DarkUiRadioBtn.setChecked(True)
         else:
             self.window.LightUiRadioBtn.setChecked(True)
-        
+
         # Смена темы при переключении радио-кнопок
         self.window.UiColorGroup.buttonToggled.connect(self.switch_theme)
-        
+
         # Применяем текущую тему при запуске
         self.apply_theme(self.auth_model.get_theme().strip())
 
@@ -45,7 +49,6 @@ class SettingsController(QObject):
         theme_name = "dark" if button == self.window.DarkUiRadioBtn else "light"
         self.apply_theme(theme_name)
         self.auth_model.save_user_theme(theme_name)
-
 
     def apply_theme(self, theme_name: str):
         """Загружает и применяет .qss тему"""
@@ -79,7 +82,6 @@ class SettingsController(QObject):
 
             self.window.ShowPwd.setText("👁")
 
-
     def change_password_btn(self):
         password = self.window.RegistPasswordEdit.text()
         confirm_pass = self.window.RegistPasswordConfirmEdit.text()
@@ -90,10 +92,39 @@ class SettingsController(QObject):
             QMessageBox.warning(self.window, "Error", "Пароли не  совпадают.")
 
     def reset_btn(self):
-        reply = QMessageBox.question(self.window, 'Сбросить', 'ВСЕ ВАШИ ПРИВЫЧКИ БУДУТ УДАЛЕНЫ. ВЫ ТОЧНО ЭТОГО ХОТИТЕ?', QMessageBox.StandardButton.Yes |
-                                QMessageBox.StandardButton.No)
+        reply = QMessageBox.question(self.window, 'Сбросить', 'ВСЕ ВАШИ ПРИВЫЧКИ БУДУТ УДАЛЕНЫ. ВЫ ТОЧНО ЭТОГО ХОТИТЕ?',
+                                     QMessageBox.StandardButton.Yes |
+                                     QMessageBox.StandardButton.No)
         if reply == QMessageBox.StandardButton.Yes:
-             self.user_model.reset_data()
+            self.user_model.reset_data()
         else:
             return
-       
+
+    def import_btn(self):
+        """Функция для импорта привычек из JSON файла"""
+        try:
+            # Получаем путь json массива с привычками, тк .getOpenFileName вернет кортеж где первый элемент — путь то берем только его 
+            file_path = QFileDialog.getOpenFileName(self.window, filter="JSON Files (*.json)")[0]
+            # А теперь модели даем наш путь чтобы она все сделаля
+            self.user_model.import_habits(file_path)
+
+        except Exception as e:
+            QMessageBox.warning(self.window, "Ошибка", f"Произошла ошибка: {e}")
+        
+        else:
+            QMessageBox.information(self.window, "Успешно", "Привычки успешно импортированы")
+
+    def export_btn(self):
+        """Функция для экспорта привычек в JSON файл"""
+        try:
+            # Получаем путь json массива с привычками, тк .getSaveFileName вернет корртеж где первый элемент — путь то берем только его 
+            file_path = QFileDialog.getSaveFileName(self.window, filter="JSON Files (*.json)")[0]
+            # А теперь модели даем наш путь чтобы она все сделала
+            self.user_model.export_habits(file_path)
+
+        except Exception as e:
+            QMessageBox.warning(self.window, "Ошибка", f"Произошла ошибка: {e}")
+
+        else:
+            QMessageBox.information(self.window, "Успешно", "Привычки успешно экспортированы.")
+
