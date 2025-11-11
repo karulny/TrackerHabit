@@ -13,9 +13,9 @@ class Model:
         self.auth = AuthModel(self.database)
 
     def close(self):
-        self.auth.update_last_login(self.user.user_id)
-        self.user.close()
-
+        if self.user:
+            self.auth.update_last_login(self.user.user_id)
+            
     def get_auth(self):
         return self.auth
 

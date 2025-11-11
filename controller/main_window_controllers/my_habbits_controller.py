@@ -97,7 +97,6 @@ class MyHabitsController:
 
         for habit in habits:
             progress, target = self.model.get_progress_and_target(habit["name"])
-            print(progress, target)
             row = [
                 QStandardItem(habit["name"]),
                 QStandardItem(habit["category"]),

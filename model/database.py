@@ -79,6 +79,12 @@ class DataBase:
     def getter(self, query, params):
         return self.connection.execute(query, params).fetchall()
 
-    def getter_for_one(self, query, params):
-        return self.connection.execute(query, params).fetchone()
+    def getter_for_one(self, query, params=()):
+        cur = self.connection.cursor()
+        cur.execute(query, params)
+        row = cur.fetchone()
+        if row is None:
+            return None
+        return dict(row)  # превращает sqlite3.Row в обычный словарь
+
 

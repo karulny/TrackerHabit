@@ -11,11 +11,12 @@ class MainWindowController(QMainWindow, Ui_MainWindow):
     def __init__(self, model):
         super().__init__()
         self.setupUi(self)
+        self.model = model
         self.user_model = model.get_user()
         self.auth_model = model.get_auth()
         self.habit_controller = MyHabitsController(self, self.user_model)
         self.statistic_controller = StatisticController(self, self.user_model)
-        self.settings_controller = SettingsController(self, self.auth_model, self.user_model.user_id)
+        self.settings_controller = SettingsController(self, self.auth_model, self.user_model)
         self.connect_signal()
 
 
@@ -24,14 +25,14 @@ class MainWindowController(QMainWindow, Ui_MainWindow):
         reply = QMessageBox.question(self, 'Выйти', 'Вы точно хотите выйти?', QMessageBox.StandardButton.Yes |
                                      QMessageBox.StandardButton.No)
         if reply == QMessageBox.StandardButton.Yes:
-            # self.user_model.close()
+            self.model.close()
             event.accept()
         else:
             event.ignore()
 
     def connect_signal(self):
         self.tabWidget.tabBarClicked.connect(
-            self.statistic_controller.update_habits
+            self.updater
         )
             # Подключаем сигнал выхода
         self.settings_controller.unlogin.connect(self.handle_unlogin)
@@ -45,3 +46,8 @@ class MainWindowController(QMainWindow, Ui_MainWindow):
             self.user_model.close()
             # Эмитим событие вверх — для StartUpController
             self.unlogin_from_main.emit()  # Можно добавить этот сигнал, если нужно
+
+    def updater(self):
+        # обновляем привычки и ТД, а то в друг беда будет
+        self.statistic_controller.update_habits()
+        self.habit_controller.show_habits()

@@ -1,7 +1,7 @@
 import pyqtgraph as pg
 from PyQt6.QtWidgets import QVBoxLayout
 from PyQt6.QtCore import Qt
-from datetime import datetime
+from datetime import datetime, date
 
 
 class StatisticController:
@@ -13,12 +13,9 @@ class StatisticController:
         self.layout = QVBoxLayout(self.window.GraphWidget)
 
         # Создаём сам график
-        self.graph = pg.PlotWidget()
-        self.graph.setBackground('w')
-        self.graph.showGrid(x=True, y=True, alpha=0.3)
-        self.graph.setLabel('left', 'Прогресс')
-        self.graph.setLabel('bottom', 'Дата')
-        self.layout.addWidget(self.graph)
+        self.graph_widget = pg.PlotWidget()
+        self.graph_widget.setBackground('w')
+        self.layout.addWidget(self.graph_widget)
 
         # Если есть layout для статистики — вставляем туда
         if hasattr(self.window, "statisticLayout"):
@@ -32,12 +29,12 @@ class StatisticController:
         """Подключает сигналы и заполняет список привычек"""
         self.init_text_time_box()
         self.update_habits()
-        # # При выборе привычки — автоматически обновляем график
-        # self.window.HabitBox.currentIndexChanged.connect(self.collect_data_and_call_graph)
-        # # При смене диапазона времени — автоматически обновляем график
-        # self.window.TimeBox.currentIndexChanged.connect(self.collect_data_and_call_graph)
-        # # Кнопка "Обновить" тоже оставляем на случай
-        # self.window.UpdateGraphBtn.clicked.connect(self.collect_data_and_call_graph)
+        # При выборе привычки — автоматически обновляем график
+        self.window.HabitBox.currentIndexChanged.connect(self.collect_data_and_call_graph)
+        # При смене диапазона времени — автоматически обновляем график
+        self.window.TimeBox.currentIndexChanged.connect(self.collect_data_and_call_graph)
+        # Кнопка "Обновить" тоже оставляем на случай
+        self.window.UpdateGraphBtn.clicked.connect(self.collect_data_and_call_graph)
 
     def update_habits(self):
         """Заполняет выпадающий список привычек"""
@@ -49,70 +46,77 @@ class StatisticController:
             self.window.HabitBox.setCurrentIndex(0)
         else:
             self.window.HabitBox.addItem("Нет привычек")
+        
 
     def init_text_time_box(self):
-        self.window.TimeBox.addItems(["за день", "за месяц"])
+        self.window.TimeBox.addItems(["За сегодня", "за 7 дней", "за 30 дней"])
         self.window.TimeBox.setCurrentIndex(0)
 
-    # # --- ОТОБРАЖЕНИЕ ГРАФИКА ---
-    # def plot_habit_progress(self, graph_widget, habit_data, habit_name, month=True):
-    #     """
-    #     Строит график прогресса привычки.
-    #     :param graph_widget: PlotWidget из PyQt для отображения графика
-    #     :param habit_data: Список кортежей (progress, target, date) из get_habit_static_daily
-    #     :param habit_name: Название привычки (для заголовка)
-    #     """
-    #     if not habit_data:
-    #         graph_widget.clear()
-    #         graph_widget.setTitle("Нет данных для отображения")
-    #         return
+            # --- ОТОБРАЖЕНИЕ ГРАФИКА ---
+    def plot_habit_progress(self, habit_data):
+        """Строит график прогресса привычки."""
+        self.graph_widget.clear()
 
-    #     # Преобразуем даты и данные
-    #     dates = []
-    #     progress = []
-    #     target = []
-    #     for p, t, d in habit_data:
-    #         if isinstance(d, str):
-    #             d = datetime.strptime(d, "%Y-%m-%d")
-    #         dates.append(d)
-    #         progress.append(p)
-    #         target.append(t)
+        dates = []
+        completed = []
 
-    #     x_values = [d.timestamp() for d in dates]
+        for item in habit_data:
+            print(item)
+            # Безопасная распаковка
+            if isinstance(item, (tuple, list)) and len(item) == 2:
+                d, c = item
+            else:
+                # Пропускаем любые некорректные записи
+                continue
 
-    #     # Очищаем график
-    #     graph_widget.clear()
+            # Фильтруем нули
+            if c <= 0:
+                continue
 
-    #     # Линия прогресса
-    #     graph_widget.plot(
-    #         x_values, progress,
-    #         pen=pg.mkPen('b', width=2),
-    #         symbol='o', symbolBrush='b',
-    #         name="Прогресс"
-    #     )
+            # Преобразуем дату
+            try:
+                if " " in d:
+                    dt = datetime.strptime(d, "%Y-%m-%d %H:%M:%S")
+                else:
+                    dt = datetime.strptime(d, "%Y-%m-%d")
+            except ValueError:
+                continue
 
-    #     # Линия цели
-    #     graph_widget.plot(
-    #         x_values, target,
-    #         pen=pg.mkPen('r', style=Qt.PenStyle.DashLine, width=2),
-    #         name="Цель"
-    #     )
+            # Форматируем дату для графика
+            if dt.date() == date.today():
+                dates.append(dt.strftime("%H:%M:%S"))
+            else:
+                dates.append(dt.strftime("%d.%m.%Y"))
 
-    #     # Настраиваем подписи оси X как дни
-    #     ax = graph_widget.getAxis('bottom')
-    #     ax.setTicks([[(x_values[i], dates[i].strftime("%d.%m")) for i in range(len(dates))]])
+            completed.append(c)
 
-    #     # Заголовок
-    #     graph_widget.setTitle(f"Динамика привычки: {habit_name}")
+        # Если после фильтрации нет данных — график не строим
+        if not dates:
+            return
 
-    # def collect_data_and_call_graph(self):
-    #     graph_widget = self.graph
-    #     habit_name = self.window.HabitBox.currentText()
-    #     text_from_time_box = self.window.TimeBox.currentText()
-    #     if text_from_time_box == "за день":
-    #         habit_data = self.model.get_habit_static_daily(habit_name)
-    #         month = False
-    #     else:
-    #         habit_data = self.model.get_habit_static_daily(habit_name)
-    #         month = True
-    #     self.plot_habit_progress(graph_widget, habit_data, habit_name, month)
+        x = list(range(len(dates)))
+
+        bg = pg.BarGraphItem(x=x, height=completed, width=0.6, brush='g')
+        self.graph_widget.addItem(bg)
+
+        ax = self.graph_widget.getAxis('bottom')
+        ax.setTicks([list(zip(x, dates))])
+
+        self.graph_widget.setYRange(-0.5, 1.5)
+        self.graph_widget.setLabel('left', 'Выполнено (1) / Не выполнено (0)')
+        self.graph_widget.setLabel('bottom', 'Дата')
+        self.graph_widget.setTitle("Статистика привычки")
+        self.graph_widget.showGrid(x=True, y=True)
+
+
+    def collect_data_and_call_graph(self):
+        habit_name = self.window.HabitBox.currentText()
+        if self.window.TimeBox.currentIndex() == 0:
+            habit_data = self.model.get_habit_static_daily(habit_name)
+        else:
+            text_from_time_box = self.window.TimeBox.currentText()
+            days = text_from_time_box.split()[1]
+            habit_data = self.model.get_habit_static_for_N_days(habit_name, days)
+        
+        
+        self.plot_habit_progress(habit_data)

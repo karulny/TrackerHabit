@@ -6,7 +6,7 @@ from view.login_window import Ui_LoginUi
 class LoginController(QMainWindow, Ui_LoginUi):
     login_successful = pyqtSignal(int)
 
-    def __init__(self, model=None):
+    def __init__(self, model):
         super().__init__()
         self.model = model
         self.setupUi(self)

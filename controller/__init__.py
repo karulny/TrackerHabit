@@ -33,7 +33,7 @@ class StartUpController:
 
     def restart_login_window(self):
         self.main_window.close()
-        self.model = Model()  # создаём новую модель с новой БД чтобы не получать баги . Что очень грустно :()
+        self.model = Model()  # создаём новую модель с новой БД чтобы не получать баги . Что очень грустно :(
         self.login_window = LoginController(self.model.get_auth())
         self.login_window.login_successful.connect(self.close_login_window_and_open_main_window)
         self.login_window.show()
