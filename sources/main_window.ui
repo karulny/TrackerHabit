@@ -42,7 +42,7 @@
        <bool>true</bool>
       </property>
       <property name="currentIndex">
-       <number>2</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab_general">
        <attribute name="title">
@@ -126,20 +126,6 @@
                </size>
               </property>
              </spacer>
-            </item>
-            <item>
-             <widget class="QLabel" name="label">
-              <property name="text">
-               <string>Прогресс выполнения:</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QProgressBar" name="AllHabitsProgress">
-              <property name="value">
-               <number>24</number>
-              </property>
-             </widget>
             </item>
            </layout>
           </item>

@@ -4,6 +4,7 @@ import os
 
 
 class SettingsController(QObject):
+    """Контроллер вкладки настроек. Здесь наследуемся от Qobject чтобы сделать сигнал"""
     unlogin = pyqtSignal()
 
     def __init__(self, window, model, user_model) -> None:
@@ -92,6 +93,7 @@ class SettingsController(QObject):
             QMessageBox.warning(self.window, "Error", "Пароли не  совпадают.")
 
     def reset_btn(self):
+        """Функция которая отвечает за кнопку сброса связывая все воедино"""
         reply = QMessageBox.question(self.window, 'Сбросить', 'ВСЕ ВАШИ ПРИВЫЧКИ БУДУТ УДАЛЕНЫ. ВЫ ТОЧНО ЭТОГО ХОТИТЕ?',
                                      QMessageBox.StandardButton.Yes |
                                      QMessageBox.StandardButton.No)

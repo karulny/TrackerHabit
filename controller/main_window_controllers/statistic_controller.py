@@ -5,6 +5,7 @@ from datetime import datetime, date
 
 
 class StatisticController:
+    """Контроллер отвечающий за работу с вкладкой статистики"""
     def __init__(self, window, model):
         self.window = window
         self.model = model

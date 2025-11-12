@@ -1,14 +1,16 @@
 from view.add_dialog import AddHabitDialog
-from PyQt6.QtWidgets import QMessageBox, QAbstractItemView, QHeaderView, QProgressBar
+from PyQt6.QtWidgets import QMessageBox, QAbstractItemView, QHeaderView
 from PyQt6.QtGui import QStandardItemModel, QStandardItem
 from PyQt6.QtCore import QSortFilterProxyModel, Qt
 from sqlite3 import IntegrityError
 
 
 class MyHabitsController:
+    """Контроллер вкладки привычек"""
     def __init__(self, window, model):
         self.window = window
         self.model = model
+        # Ставим модели для работы с таблицой
         self.table_model = QStandardItemModel()
         self.proxy_model = QSortFilterProxyModel()
 
@@ -112,6 +114,10 @@ class MyHabitsController:
         header.setSectionResizeMode(0, QHeaderView.ResizeMode.Stretch)
         for i in range(1, self.table_model.columnCount()):
             header.setSectionResizeMode(i, QHeaderView.ResizeMode.ResizeToContents)
+        
+        rows = self.window.HabitsTable.verticalHeader()
+        # тут будет выравнивание по рядам 
+
 
         # Обновляем категории для FilterBox
         self.update_categories()

@@ -170,6 +170,53 @@ class DatabaseQueries:
         WHERE username = ?
     """
 
+    # ======= Запросы для инициаоизации таблицы
+
+    SQL_INIT_USER_TABLE = """
+            CREATE TABLE IF NOT EXISTS users
+            (
+                id       INTEGER PRIMARY KEY AUTOINCREMENT,
+                username TEXT UNIQUE NOT NULL,
+                password TEXT        NOT NULL,
+                last_login TEXT DEFAULT (date('now')),
+                theme    TEXT DEFAULT  dark
+            )
+        """
+    SQL_INIT_HABITS_TABLE = """
+            CREATE TABLE IF NOT EXISTS habits
+            (
+                id         INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id    INTEGER,
+                name       TEXT UNIQUE,
+                category   TEXT,
+                daily_frequency  INTEGER DEFAULT 0,
+                created_at TEXT DEFAULT (date('now')),
+                FOREIGN KEY (user_id) REFERENCES users (id)
+            )
+        """
+        
+    SQL_INIT_HABITS_PROGRESS_TABLE = """
+            CREATE TABLE IF NOT EXISTS habit_progress
+            (
+                id         INTEGER PRIMARY KEY AUTOINCREMENT,
+                habit_id   INTEGER,
+                date       TEXT DEFAULT (datetime('now')),
+                progress   INTEGER DEFAULT 0,
+                target     INTEGER DEFAULT 1,
+                FOREIGN KEY (habit_id) REFERENCES habits (id)
+            )               
+        """
+    
+    SQL_INIT_HABITS_MONTHLY_PROGRESS_TABLE = """
+            CREATE TABLE IF NOT EXISTS habits_progress_monthly
+            (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                habit_id INTEGER,
+                date TEXT DEFAULT (date('now')),
+                completed INTEGER DEFAULT 0,
+                FOREIGN KEY (habit_id) REFERENCES habits (id)
+            )  
+        """
 
 class DataBase(DatabaseQueries):
     """Класс БД который реализует методы для работы с БД"""
@@ -185,52 +232,13 @@ class DataBase(DatabaseQueries):
 
     def _initialize_tables(self, db_path):
         self._get_connection(db_path)
-        self.cursor.execute('''
-            CREATE TABLE IF NOT EXISTS users
-            (
-                id       INTEGER PRIMARY KEY AUTOINCREMENT,
-                username TEXT UNIQUE NOT NULL,
-                password TEXT        NOT NULL,
-                last_login TEXT DEFAULT (date('now')),
-                theme    TEXT DEFAULT  dark
-            )
-        ''')
+        self.cursor.execute(self.SQL_INIT_USER_TABLE)
 
-        self.cursor.execute("""
-            CREATE TABLE IF NOT EXISTS habits
-            (
-                id         INTEGER PRIMARY KEY AUTOINCREMENT,
-                user_id    INTEGER,
-                name       TEXT UNIQUE,
-                category   TEXT,
-                daily_frequency  INTEGER DEFAULT 0,
-                created_at TEXT DEFAULT (date('now')),
-                FOREIGN KEY (user_id) REFERENCES users (id)
-            )
-        """)
+        self.cursor.execute(self.SQL_INIT_HABITS_TABLE)
 
-        self.cursor.execute("""
-            CREATE TABLE IF NOT EXISTS habit_progress
-            (
-                id         INTEGER PRIMARY KEY AUTOINCREMENT,
-                habit_id   INTEGER,
-                date       TEXT DEFAULT (datetime('now')),
-                progress   INTEGER DEFAULT 0,
-                target     INTEGER DEFAULT 1,
-                FOREIGN KEY (habit_id) REFERENCES habits (id)
-            )               
-        """)
+        self.cursor.execute(self.SQL_INIT_HABITS_PROGRESS_TABLE)
 
-        self.cursor.execute("""
-            CREATE TABLE IF NOT EXISTS habits_progress_monthly
-            (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                habit_id INTEGER,
-                date TEXT DEFAULT (date('now')),
-                completed INTEGER DEFAULT 0,
-                FOREIGN KEY (habit_id) REFERENCES habits (id)
-            )  
-        """)
+        self.cursor.execute(self.SQL_INIT_HABITS_MONTHLY_PROGRESS_TABLE)
 
     def close(self):
         self.connection.close()
@@ -243,10 +251,12 @@ class DataBase(DatabaseQueries):
         self.connection.commit()
 
     def fetch_all(self, query, params=()):
+        """Функция которая выполняет запросы обычно типа GET и ловит все элементы"""
         self.cursor.execute(query, params)
         return self.cursor.fetchall()
 
     def getter_for_one(self, query, params=()):
+        """Функция схлжая по функционалу с fetch_all, но для одного ряда"""
         cur = self.connection.cursor()
         cur.execute(query, params)
         row = cur.fetchone()

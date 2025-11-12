@@ -63,13 +63,6 @@ class Ui_MainWindow(object):
         self.horizontalLayout.addWidget(self.MarkHabitBtn)
         spacerItem1 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
         self.horizontalLayout.addItem(spacerItem1)
-        self.label = QtWidgets.QLabel(parent=self.tab_general)
-        self.label.setObjectName("label")
-        self.horizontalLayout.addWidget(self.label)
-        self.AllHabitsProgress = QtWidgets.QProgressBar(parent=self.tab_general)
-        self.AllHabitsProgress.setProperty("value", 24)
-        self.AllHabitsProgress.setObjectName("AllHabitsProgress")
-        self.horizontalLayout.addWidget(self.AllHabitsProgress)
         self.verticalLayout_2.addLayout(self.horizontalLayout)
         self.tabGeneralLayout.addLayout(self.verticalLayout_2)
         self.tabWidget.addTab(self.tab_general, "")
@@ -204,7 +197,7 @@ class Ui_MainWindow(object):
         MainWindow.setStatusBar(self.statusbar)
 
         self.retranslateUi(MainWindow)
-        self.tabWidget.setCurrentIndex(2)
+        self.tabWidget.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -215,7 +208,6 @@ class Ui_MainWindow(object):
         self.AddHabitBtn.setText(_translate("MainWindow", "Добавить"))
         self.DeleteHabitBtn.setText(_translate("MainWindow", "Удалить"))
         self.MarkHabitBtn.setText(_translate("MainWindow", "Отметить"))
-        self.label.setText(_translate("MainWindow", "Прогресс выполнения:"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_general), _translate("MainWindow", "📊 Мои привычки"))
         self.label_2.setText(_translate("MainWindow", "Период:"))
         self.UpdateGraphBtn.setText(_translate("MainWindow", "Обновить график"))

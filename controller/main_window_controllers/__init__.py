@@ -12,12 +12,15 @@ class MainWindowController(QMainWindow, Ui_MainWindow):
     def __init__(self, model):
         super().__init__()
         self.setupUi(self)
+        # Создаем ссылку на наши модели и получаем их самих
         self.model = model
         self.user_model = model.get_user()
         self.auth_model = model.get_auth()
+        # Инициализируем наши контроллеры для каждой вкладки
         self.habit_controller = MyHabitsController(self, self.user_model)
         self.statistic_controller = StatisticController(self, self.user_model)
         self.settings_controller = SettingsController(self, self.auth_model, self.user_model)
+        # Сигнал выхода из приложения
         self.connect_signal()
 
     def closeEvent(self, event):
@@ -30,6 +33,7 @@ class MainWindowController(QMainWindow, Ui_MainWindow):
             event.ignore()
 
     def connect_signal(self):
+        """Это функция подключает сигнал выхода из аккаунта, а также при смене вкладки обновляет лист привычек на всякий случай"""
         self.tabWidget.tabBarClicked.connect(
             self.updater
         )
