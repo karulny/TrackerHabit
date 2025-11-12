@@ -54,7 +54,7 @@ class StatisticController:
 
         # --- ОТОБРАЖЕНИЕ ГРАФИКА ---
 
-    def plot_habit_progress(self, habit_data):
+    def plot_habit_progress(self, habit_data, is_statistic_daily=False):
         """Строит график прогресса привычки."""
         self.graph_widget.clear()
 
@@ -84,7 +84,7 @@ class StatisticController:
                 continue
 
             # Форматируем дату для графика
-            if dt.date() == date.today():
+            if is_statistic_daily:
                 dates.append(dt.strftime("%H:%M:%S"))
             else:
                 dates.append(dt.strftime("%d.%m.%Y"))
@@ -101,6 +101,7 @@ class StatisticController:
         self.graph_widget.addItem(bg)
 
         ax = self.graph_widget.getAxis('bottom')
+        # zip использую чтобы, удобнее было ставить данные
         ax.setTicks([list(zip(x, dates))])
 
         self.graph_widget.setYRange(-0.5, 1.5)
@@ -110,12 +111,16 @@ class StatisticController:
         self.graph_widget.showGrid(x=True, y=True)
 
     def collect_data_and_call_graph(self):
+        """Собирает данные и дает их графу"""
         habit_name = self.window.HabitBox.currentText()
+        # Самый простой спрособ при отображении графика за недели убрать нули, a также показывать ежедневный прогресс в часах и минутах
+        is_stiic_daily = False
         if self.window.TimeBox.currentIndex() == 0:
             habit_data = self.model.get_habit_static_daily(habit_name)
+            is_stiic_daily = True
         else:
             text_from_time_box = self.window.TimeBox.currentText()
             days = text_from_time_box.split()[1]
             habit_data = self.model.get_habit_static_for_N_days(habit_name, days)
 
-        self.plot_habit_progress(habit_data)
+        self.plot_habit_progress(habit_data, is_stiic_daily)
