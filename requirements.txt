@@ -1,5 +1,12 @@
-# Core dependencies
-PyQt6>=6.1.0
-pyqtgraph>=0.13.7
-# Python version requirement
-# python>=3.13
+altgraph==0.17.4
+numpy==2.3.4
+packaging==25.0
+pefile==2023.2.7
+pyinstaller==6.16.0
+pyinstaller-hooks-contrib==2025.9
+PyQt6==6.10.0
+PyQt6-Qt6==6.10.0
+PyQt6_sip==13.10.2
+pyqtgraph==0.13.7
+pywin32-ctypes==0.2.3
+setuptools==80.9.0

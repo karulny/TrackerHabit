@@ -211,4 +211,7 @@ class MainWindowModel:
                 }
                 data.append(habit_entry)
         with open(file_path, 'w', encoding="utf-8") as file:
-                json.dump(data, file, ensure_ascii=False, indent=4)            
+                json.dump(data, file, ensure_ascii=False, indent=4)
+
+    def close(self):
+        self.db.close()
