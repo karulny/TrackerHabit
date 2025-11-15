@@ -54,7 +54,7 @@ class LoginController(QMainWindow, Ui_LoginUi):
             QMessageBox.warning(self, "Ошибка", "Введите логин, пароль и подтвердите его!")
             return
 
-        elif len(password) <= 6:
+        elif len(password) < 6:
             QMessageBox.warning(self, "Ошибка", "Ваш пароль слишком короткий")
             return
 
@@ -76,7 +76,7 @@ class LoginController(QMainWindow, Ui_LoginUi):
             # показать пароль
             self.RegistPasswordEdit.setEchoMode(QLineEdit.EchoMode.Normal)
             self.RegistPasswordConfirmEdit.setEchoMode(QLineEdit.EchoMode.Normal)
-            self.RegistShowPwd.setText("🙈")  # можно заменить на иконку
+            self.RegistShowPwd.setText("🙈")
         else:
             # скрыть пароль
             self.RegistPasswordEdit.setEchoMode(QLineEdit.EchoMode.Password)
