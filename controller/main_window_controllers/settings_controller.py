@@ -86,10 +86,10 @@ class SettingsController(QObject):
     def change_password_btn(self):
         password = self.window.RegistPasswordEdit.text().strip()
         confirm_pass = self.window.RegistPasswordConfirmEdit.text().strip()
-        if password == confirm_pass:
+        if password == confirm_pass and len(password) > 6:
             self.auth_model.change_password(password)
-            QMessageBox.information(self.window, "Success", "Пароль успещно сменен.")
-        elif len(password) > 6:
+            QMessageBox.information(self.window, "Success", "Пароль успешно сменен.")
+        elif password == confirm_pass and len(password) < 6:
             QMessageBox.warning(self.window, "Error", "Пароль должен быть от 7 символов")
         else:
             QMessageBox.warning(self.window, "Error", "Пароли не  совпадают.")
