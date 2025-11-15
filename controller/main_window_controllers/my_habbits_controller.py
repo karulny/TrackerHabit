@@ -8,7 +8,7 @@ from sqlite3 import IntegrityError
 
 
 class CustomFilterProxyModel(QSortFilterProxyModel):
-    """Кастомная прокси-модель для фильтрации по нескольким столбцам стандартная QT-шная не позволяет сделать фильтр более чем по двум"""
+    """Кастомная прокси-модель для фильтрации по нескольким столбцам стандартная QT-шная не позволяет сделать фильтр по двум категориям"""
     def __init__(self, parent=None):
         super().__init__(parent)
         self.name_filter = ""
