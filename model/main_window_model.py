@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime
 import json
 
 
@@ -8,6 +8,9 @@ class MainWindowModel:
     def __init__(self, data, user_id):
         self.db = data
         self.user_id = user_id
+        # Сохраняем дату последней проверки
+        self.last_check_date = None  
+        
         if self.today_is_new_day():
             self.reset_daily_progress()
         self.cleanup_old_monthly_progress()
@@ -112,6 +115,8 @@ class MainWindowModel:
         """Сбрасывает ежедневный прогресс для всех привычек"""
         self.db.execute_query_and_commit(self.db.RESET_DAILY_PROGRESS)
         self.init_new_progress_for_habits()
+        # Обновляем дату последней проверки
+        self.last_check_date = date.today()
 
     def get_habit_id(self, habit_name):
         """Получает ID привычки по её названию"""
@@ -121,13 +126,57 @@ class MainWindowModel:
 
     def today_is_new_day(self):
         """Проверяет, является ли сегодня новым днём для сброса прогресса"""
-        today = date.today().isoformat()
+        today = date.today()
+        
+        # Если уже проверяли сегодня, возвращаем False
+        if self.last_check_date == today:
+            return False
+        
+        # Проверяем, есть ли записи за сегодня в habit_progress
+        # Если есть хоть одна запись с сегодняшней датой, значит день уже начат
+        check_query = """
+            SELECT COUNT(*) as count
+            FROM habit_progress hp
+            JOIN habits h ON hp.habit_id = h.id
+            WHERE h.user_id = ? 
+            AND date(hp.date) = date('now', 'localtime')
+        """
+        
+        result = self.db.getter_for_one(check_query, (self.user_id,))
+        
+        if result and result['count'] > 0:
+            # Есть записи за сегодня - день уже начат
+            self.last_check_date = today
+            return False
+        
+        # Проверяем last_login пользователя
         params = (self.user_id,)
         row = self.db.getter_for_one(self.db.GET_LAST_DATE_QUERY, params)
-        if row and row['date'] < today:
-            
-            return True
-        return False
+        
+        if row and row['date']:
+            try:
+                # Парсим дату последнего входа
+                last_date_str = row['date']
+                # Может быть в формате 'YYYY-MM-DD' или 'YYYY-MM-DD HH:MM:SS'
+                if ' ' in last_date_str:
+                    last_date = datetime.strptime(last_date_str, "%Y-%m-%d %H:%M:%S").date()
+                else:
+                    last_date = datetime.strptime(last_date_str, "%Y-%m-%d").date()
+                
+                # Если последний вход был НЕ сегодня - это новый день
+                if last_date < today:
+                    self.last_check_date = today
+                    return True
+                    
+            except (ValueError, TypeError) as e:
+                print(f"Ошибка парсинга даты: {e}")
+                # В случае ошибки считаем что это новый день
+                self.last_check_date = today
+                return True
+        
+        # Если нет информации о последнем входе - считаем новым днём
+        self.last_check_date = today
+        return True
 
     def init_new_progress_for_habits(self):
         """Инициализирует новый прогресс для привычки в начале нового дня"""
@@ -187,7 +236,6 @@ class MainWindowModel:
         """Удаляет записи старше 30 дней из таблицы habits_progress_monthly"""
         self.db.execute_query_and_commit(self.db.DELETE_OLD_MONTHLY_PROGRESS)
 
-
     def import_habits(self, file_path):
         with open(file_path, 'r', encoding="utf-8") as file:
             habits = json.load(file)
@@ -212,6 +260,8 @@ class MainWindowModel:
                 data.append(habit_entry)
         with open(file_path, 'w', encoding="utf-8") as file:
                 json.dump(data, file, ensure_ascii=False, indent=4)
-
+    
     def close(self):
-        self.db.close()
+        """Закрывает ресурсы модели и очищает кэш"""
+        # Очищаем кэшированные данные
+        self.last_check_date = None

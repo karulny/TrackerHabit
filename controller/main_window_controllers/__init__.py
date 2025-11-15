@@ -24,10 +24,15 @@ class MainWindowController(QMainWindow, Ui_MainWindow):
         self.connect_signal()
 
     def closeEvent(self, event):
-        reply = QMessageBox.question(self, 'Выйти', 'Вы точно хотите выйти?', QMessageBox.StandardButton.Yes |
-                                     QMessageBox.StandardButton.No)
+        """Обработчик закрытия главного окна"""
+        reply = QMessageBox.question(
+            self, 
+            'Выйти', 
+            'Вы точно хотите выйти?', 
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
+        )
+        
         if reply == QMessageBox.StandardButton.Yes:
-            self.model.close()
             event.accept()
         else:
             event.ignore()

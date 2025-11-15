@@ -1,59 +1,103 @@
 from .main_window_controllers import MainWindowController
 from .login_controller import LoginController
 from model import Model
-from PyQt6.QtWidgets import QMessageBox
+from PyQt6.QtWidgets import QMessageBox, QApplication
 import traceback
 
 
 class StartUpController:
+    """
+    Главный контроллер приложения.
+    Управляет переключением между окном входа и главным окном.
+    """
 
     def __init__(self):
+        # Создаём модель ОДИН РАЗ при запуске приложения
         self.model = Model()
-        self.login_window = LoginController(self.model.get_auth())
+        self.login_window = None
         self.main_window = None
-        self.login_window.login_successful.connect(self.close_login_window_and_open_main_window)
+        
+        # Создаём окно входа
+        self._create_login_window()
+
+    def _create_login_window(self):
+        """Создаёт или пересоздаёт окно входа"""
+        self.login_window = LoginController(self.model.get_auth())
+        self.login_window.login_successful.connect(self.open_main_window)
 
     def show_login_window(self):
-        self.login_window.show()
+        """Показывает окно входа"""
+        if self.login_window:
+            self.login_window.show()
 
-    def close_login_window_and_open_main_window(self, user_id=1):
+    def open_main_window(self, user_id):
+        """Открывает главное окно после успешного входа"""
         try:
-            self.login_window.hide()
+            # Скрываем окно входа
+            if self.login_window:
+                self.login_window.hide()
+            
+            # Инициализируем пользователя в модели
             self.model.init_user(user_id)
+            
+            # Создаём главное окно
             self.main_window = MainWindowController(model=self.model)
             self.main_window.show()
-            self.main_window.unlogin_from_main.connect(self.restart_login_window)
+            
+            # Подключаем сигнал выхода
+            self.main_window.unlogin_from_main.connect(self.logout_and_show_login)
 
         except Exception as e:
             traceback.print_exc()
-            QMessageBox.critical(None, "Ошибка", f"Не удалось открыть главное окно:\n{e}")
+            QMessageBox.critical(
+                None, 
+                "Ошибка", 
+                f"Не удалось открыть главное окно:\n{e}"
+            )
 
-    def restart_login_window(self):
-        """Перезапускает окно логина после выхода из аккаунта"""
+    def logout_and_show_login(self):
+        """
+        Выход из аккаунта и возврат к окну входа.
+        """
         try:
             # Закрываем главное окно
             if self.main_window:
                 self.main_window.close()
+                self.main_window = None
             
-            if self.model:
-                # Обновляем last_login (пока БД открыта)
-                self.model.close()
-                
-                # Закрываем соединение с БД
-                if hasattr(self.model, 'database'):
-                    self.model.database.close()
-                
-                # Обнуляем ссылку на старую модель
-                self.model = None
+            # Сбрасываем состояние пользователя
+            self.model.reset_user()
             
-            # Создаём новую модель с новым соединением к БД
-            self.model = Model()
+            # Пересоздаём окно входа
+            self._create_login_window()
             
-            # Создаём новое окно логина
-            self.login_window = LoginController(self.model.get_auth())
-            self.login_window.login_successful.connect(self.close_login_window_and_open_main_window)
+            # Показываем окно входа
             self.login_window.show()
             
         except Exception as e:
             traceback.print_exc()
-            QMessageBox.critical(None, "Ошибка", f"Не удалось перезапустить окно входа:\n{e}")
+            QMessageBox.critical(
+                None, 
+                "Ошибка", 
+                f"Не удалось вернуться к окну входа:\n{e}"
+            )
+    
+    def shutdown(self):
+        """
+        Полное завершение работы приложения.
+        Вызывается при закрытии приложения.
+        """
+        try:
+            # Закрываем все окна
+            if self.main_window:
+                self.main_window.close()
+            if self.login_window:
+                self.login_window.close()
+            
+            # Закрываем модель и БД
+            if self.model:
+                self.model.shutdown()
+                
+        except Exception as e:
+            print(f"Ошибка при завершении приложения: {e}")
+            traceback.print_exc()

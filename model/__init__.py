@@ -51,11 +51,47 @@ class Model:
         except Exception as e:
             print(f"Ошибка при обновлении last_login: {e}")
             traceback.print_exc()
+    
+    def reset_user(self):
+        """Сбрасывает состояние пользователя без пересоздания модели"""
+        try:
+            # Обновляем last_login перед выходом
+            if self.user and hasattr(self.user, 'user_id'):
+                if hasattr(self.database, 'connection') and self.database.connection:
+                    self.auth.update_last_login(self.user.user_id)
+            
+            # Очищаем данные пользователя
+            if self.user:
+                self.user.close()
+                self.user = None
+            
+            # Сбрасываем username в auth модели
+            if self.auth:
+                self.auth.username = None
+                
+        except Exception as e:
+            print(f"Ошибка при сбросе пользователя: {e}")
+            traceback.print_exc()
+    
+    def shutdown(self):
+        """Полное завершение работы с закрытием БД"""
+        try:
+            # Обновляем last_login
+            self.close()
+            
+            # Закрываем соединение с БД
+            if hasattr(self, 'database') and self.database:
+                self.database.close()
+                
+        except Exception as e:
+            print(f"Ошибка при завершении работы: {e}")
+            traceback.print_exc()
 
     def get_auth(self):
         return self.auth
 
     def init_user(self, user_id):
+        """Инициализирует пользователя"""
         self.user = MainWindowModel(self.database, user_id)
 
     def get_user(self):

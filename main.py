@@ -1,14 +1,23 @@
 from PyQt6.QtWidgets import QApplication
 import sys
 from controller import StartUpController
-import controller
 
 
 def main():
+    """Точка входа в приложение"""
     app = QApplication(sys.argv)
+    
+    # Создаём главный контроллер
     controller = StartUpController()
     controller.show_login_window()
-    sys.exit(app.exec())
+    
+    # Запускаем цикл обработки событий
+    exit_code = app.exec()
+    
+    # При выходе из приложения корректно закрываем всё
+    controller.shutdown()
+    
+    sys.exit(exit_code)
 
 
 if __name__ == '__main__':
