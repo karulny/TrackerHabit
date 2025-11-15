@@ -278,9 +278,7 @@ class DataBase(DatabaseQueries):
 
     def getter_for_one(self, query, params=()):
         """Функция схожая по функционалу с fetch_all, но для одного ряда"""
-        cur = self.connection.cursor()
-        cur.execute(query, params)
-        row = cur.fetchone()
+        row = self.cursor.execute(query, params).fetchone()
         if row is None:
             return None
         return dict(row)
