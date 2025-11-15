@@ -84,25 +84,62 @@ class SettingsController(QObject):
             self.window.ShowPwd.setText("👁")
 
     def change_password_btn(self):
-        password = self.window.RegistPasswordEdit.text().strip()
-        confirm_pass = self.window.RegistPasswordConfirmEdit.text().strip()
-        if password == confirm_pass and len(password) > 6:
-            self.auth_model.change_password(password)
-            QMessageBox.information(self.window, "Success", "Пароль успешно сменен.")
-        elif password == confirm_pass and len(password) < 6:
-            QMessageBox.warning(self.window, "Error", "Пароль должен быть от 7 символов")
-        else:
-            QMessageBox.warning(self.window, "Error", "Пароли не  совпадают.")
+            """Обработчик смены пароля с валидацией и очисткой полей"""
+            password = self.window.RegistPasswordEdit.text().strip()
+            confirm_pass = self.window.RegistPasswordConfirmEdit.text().strip()
+            
+            # Проверка на пустые поля
+            if not password or not confirm_pass:
+                QMessageBox.warning(self.window, "Ошибка", "Заполните оба поля для смены пароля")
+                return
+            
+            # Проверка длины пароля
+            if len(password) < 6:
+                QMessageBox.warning(self.window, "Ошибка", "Пароль должен быть не менее 6 символов")
+                return
+            
+            # Проверка совпадения паролей
+            if password != confirm_pass:
+                QMessageBox.warning(self.window, "Ошибка", "Пароли не совпадают")
+                return
+            
+            # Все проверки пройдены - меняем пароль
+            try:
+                self.auth_model.change_password(password)
+                QMessageBox.information(self.window, "Успешно", "Пароль успешно изменен")
+                
+                # Очищаем поля после успешной смены
+                self.window.RegistPasswordEdit.clear()
+                self.window.RegistPasswordConfirmEdit.clear()
+                
+            except Exception as e:
+                QMessageBox.critical(self.window, "Ошибка", f"Не удалось изменить пароль:\n{e}")
 
     def reset_btn(self):
-        """Функция которая отвечает за кнопку сброса связывая все воедино"""
-        reply = QMessageBox.question(self.window, 'Сбросить', 'ВСЕ ВАШИ ПРИВЫЧКИ БУДУТ УДАЛЕНЫ. ВЫ ТОЧНО ЭТОГО ХОТИТЕ?',
-                                     QMessageBox.StandardButton.Yes |
-                                     QMessageBox.StandardButton.No)
+        """Сброс всех данных пользователя с подтверждением"""
+        reply = QMessageBox.question(
+            self.window, 
+            'Подтверждение сброса', 
+            'ВСЕ ВАШИ ПРИВЫЧКИ И ПРОГРЕСС БУДУТ БЕЗВОЗВРАТНО УДАЛЕНЫ!\n\nВы уверены, что хотите продолжить?',
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+            QMessageBox.StandardButton.No  # По умолчанию выбрана кнопка "Нет"
+        )
+        
         if reply == QMessageBox.StandardButton.Yes:
-            self.user_model.reset_data()
-        else:
-            return
+            try:
+                self.user_model.reset_data()
+                QMessageBox.information(
+                    self.window, 
+                    "Успешно", 
+                    "Все данные успешно удалены"
+                )
+                
+            except Exception as e:
+                QMessageBox.critical(
+                    self.window, 
+                    "Ошибка", 
+                    f"Не удалось удалить данные:\n{e}"
+                )
 
     def import_btn(self):
         """Функция для импорта привычек из JSON файла"""
