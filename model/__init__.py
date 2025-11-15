@@ -3,6 +3,7 @@ from .registrarion_model import AuthModel
 from .database import DataBase
 import os
 import sys
+import traceback
 
 
 def get_app_data_dir():
@@ -40,8 +41,16 @@ class Model:
         self.auth = AuthModel(self.database)
 
     def close(self):
-        if self.user:
-            self.auth.update_last_login(self.user.user_id)
+        """Закрывает модель и обновляет last_login"""
+        try:
+            # Обновляем last_login только если пользователь был инициализирован
+            if self.user and hasattr(self.user, 'user_id'):
+                # Проверяем что соединение с БД ещё активно
+                if hasattr(self.database, 'connection') and self.database.connection:
+                    self.auth.update_last_login(self.user.user_id)
+        except Exception as e:
+            print(f"Ошибка при обновлении last_login: {e}")
+            traceback.print_exc()
 
     def get_auth(self):
         return self.auth

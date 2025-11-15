@@ -124,8 +124,8 @@ class MainWindowModel:
         today = date.today().isoformat()
         params = (self.user_id,)
         row = self.db.getter_for_one(self.db.GET_LAST_DATE_QUERY, params)
-
         if row and row['date'] < today:
+            
             return True
         return False
 

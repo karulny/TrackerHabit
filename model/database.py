@@ -16,14 +16,14 @@ class DatabaseQueries:
     # ========== Запросы для MainWindowModel ==========
     ADD_HABIT_PROGRESS = """
         INSERT INTO habit_progress (habit_id, date, progress, target)
-        VALUES (?, datetime('now','localtime'), ?, ?);
+        VALUES (?, datetime('now', 'localtime'), ?, ?);
     """
     
     GET_LAST_TODAY_PROGRESS = """
         SELECT progress, target
         FROM habit_progress
         WHERE habit_id = ? 
-        AND date(date) = date('now','localtime')
+        AND date(date, 'localtime') = date('now', 'localtime')
         ORDER BY id DESC
         LIMIT 1;
     """
@@ -31,26 +31,26 @@ class DatabaseQueries:
     CHECK_IF_TODAY_MONTHLY_EXISTS = """
         SELECT id
         FROM habits_progress_monthly
-        WHERE habit_id = ? AND date = date('now','localtime');
+        WHERE habit_id = ? AND date = date('now', 'localtime');
     """
     
     GET_LAST_HABIT_PROGRESS_AND_TARGET = """
         SELECT progress, target
         FROM habit_progress
-        WHERE habit_id = ? AND date = date('now','localtime')
+        WHERE habit_id = ? AND date(date, 'localtime') = date('now', 'localtime')
         ORDER BY id DESC
         LIMIT 1;
     """
     
     ADD_MONTHLY_PROGRESS = """
         INSERT INTO habits_progress_monthly (habit_id, date, completed)
-        VALUES (?, date('now','localtime'), ?);
+        VALUES (?, date('now', 'localtime'), ?);
     """
     
     UPDATE_LAST_HABIT_PROGRESS_MONTHLY = """
         UPDATE habits_progress_monthly
         SET completed = ?
-        WHERE habit_id = ? AND date = date('now','localtime');
+        WHERE habit_id = ? AND date = date('now', 'localtime');
     """
     
     GET_HABIT_TARGET = """
@@ -78,7 +78,7 @@ class DatabaseQueries:
     
     RESET_DAILY_PROGRESS = """
         DELETE FROM habit_progress
-        WHERE date(date) < date('now', 'localtime');
+        WHERE date(date, 'localtime') < date('now', 'localtime');
     """
     
     IS_HABIT_COMPLETED_TODAY = """
@@ -124,19 +124,21 @@ class DatabaseQueries:
         SELECT date, progress
         FROM habit_progress
         WHERE habit_id = ?
+        AND date(date, 'localtime') = date('now', 'localtime')
+        ORDER BY date ASC;
     """
     
     GET_HABIT_STATISTIC_FOR_N_DAYS = """
         SELECT completed, date
         FROM habits_progress_monthly
         WHERE habit_id = ?
-          AND date >= date('now', '-' || ? || ' days')
+          AND date >= date('now', 'localtime', '-' || ? || ' days')
         ORDER BY date ASC;
     """
     
     DELETE_OLD_MONTHLY_PROGRESS = """
         DELETE FROM habits_progress_monthly
-        WHERE date < date('now', '-30 days');
+        WHERE date < date('now', 'localtime', '-30 days');
     """
     
     # ========== Запросы для AuthModel ==========
@@ -148,7 +150,7 @@ class DatabaseQueries:
     
     UPDATE_LAST_LOGIN_QUERY = """
         UPDATE users 
-        SET last_login = DATE('now') 
+        SET last_login = date('now', 'localtime') 
         WHERE id = ?
     """
     
@@ -170,7 +172,7 @@ class DatabaseQueries:
         WHERE username = ?
     """
 
-    # ======= Запросы для инициаоизации таблицы
+    # ======= Запросы для инициализации таблицы
 
     SQL_INIT_USER_TABLE = """
             CREATE TABLE IF NOT EXISTS users
@@ -178,8 +180,8 @@ class DatabaseQueries:
                 id       INTEGER PRIMARY KEY AUTOINCREMENT,
                 username TEXT UNIQUE NOT NULL,
                 password TEXT        NOT NULL,
-                last_login TEXT DEFAULT (date('now')),
-                theme    TEXT DEFAULT  dark
+                last_login TEXT DEFAULT (date('now', 'localtime')),
+                theme    TEXT DEFAULT 'dark'
             )
         """
     SQL_INIT_HABITS_TABLE = """
@@ -190,7 +192,7 @@ class DatabaseQueries:
                 name       TEXT UNIQUE,
                 category   TEXT,
                 daily_frequency  INTEGER DEFAULT 0,
-                created_at TEXT DEFAULT (date('now')),
+                created_at TEXT DEFAULT (date('now', 'localtime')),
                 FOREIGN KEY (user_id) REFERENCES users (id)
             )
         """
@@ -200,7 +202,7 @@ class DatabaseQueries:
             (
                 id         INTEGER PRIMARY KEY AUTOINCREMENT,
                 habit_id   INTEGER,
-                date       TEXT DEFAULT (datetime('now')),
+                date       TEXT DEFAULT (datetime('now', 'localtime')),
                 progress   INTEGER DEFAULT 0,
                 target     INTEGER DEFAULT 1,
                 FOREIGN KEY (habit_id) REFERENCES habits (id)
@@ -212,7 +214,7 @@ class DatabaseQueries:
             (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 habit_id INTEGER,
-                date TEXT DEFAULT (date('now')),
+                date TEXT DEFAULT (date('now', 'localtime')),
                 completed INTEGER DEFAULT 0,
                 FOREIGN KEY (habit_id) REFERENCES habits (id)
             )  
@@ -239,14 +241,31 @@ class DataBase(DatabaseQueries):
         self.cursor.execute(self.SQL_INIT_HABITS_PROGRESS_TABLE)
 
         self.cursor.execute(self.SQL_INIT_HABITS_MONTHLY_PROGRESS_TABLE)
-
-    def close(self):
-        self.connection.close()
-
-    def commit_changes(self):
+        
         self.connection.commit()
 
+    def close(self):
+        """Закрывает соединение с базой данных"""
+        if hasattr(self, 'connection') and self.connection:
+            try:
+                self.connection.close()
+                self.connection = None
+            except Exception as e:
+                print(f"Ошибка при закрытии БД: {e}")
+
+    def is_connected(self):
+        """Проверяет, активно ли соединение с БД"""
+        return hasattr(self, 'connection') and self.connection is not None
+
+    def commit_changes(self):
+        """Сохраняет изменения в БД"""
+        if self.is_connected():
+            self.connection.commit()
+
     def execute_query_and_commit(self, query, params=()):
+        """Выполняет запрос и сохраняет изменения"""
+        if not self.is_connected():
+            raise sqlite3.ProgrammingError("Database connection is closed")
         self.cursor.execute(query, params)
         self.connection.commit()
 
@@ -256,7 +275,7 @@ class DataBase(DatabaseQueries):
         return self.cursor.fetchall()
 
     def getter_for_one(self, query, params=()):
-        """Функция схлжая по функционалу с fetch_all, но для одного ряда"""
+        """Функция схожая по функционалу с fetch_all, но для одного ряда"""
         cur = self.connection.cursor()
         cur.execute(query, params)
         row = cur.fetchone()
