@@ -144,16 +144,46 @@ class SettingsController(QObject):
     def import_btn(self):
         """Функция для импорта привычек из JSON файла"""
         try:
-            # Получаем путь json массива с привычками, тк .getOpenFileName вернет кортеж где первый элемент — путь то берем только его 
-            file_path = QFileDialog.getOpenFileName(self.window, filter="JSON Files (*.json)")[0]
-            # А теперь модели даем наш путь чтобы она все сделаля
-            self.user_model.import_habits(file_path)
+            # Получаем путь json массива с привычками
+            file_path = QFileDialog.getOpenFileName(
+                self.window, 
+                "Выберите файл для импорта",
+                "",
+                "JSON Files (*.json)"
+            )[0]
+            
+            # Если пользователь отменил выбор файла
+            if not file_path:
+                return
+            
+            # Импортируем привычки
+            imported, skipped = self.user_model.import_habits(file_path)
+            
+            # Формируем сообщение о результатах
+            message = f"Импорт завершен!\n\n"
+            message += f"✅ Импортировано: {imported}\n"
+            
+            if skipped > 0:
+                message += f"⚠️ Пропущено (дубликаты): {skipped}"
+            
+            QMessageBox.information(self.window, "Успешно", message)
+            
+            # Обновляем отображение привычек
+            if hasattr(self.window, 'habit_controller'):
+                self.window.habit_controller.show_habits()
 
-        except Exception as e:
-            QMessageBox.warning(self.window, "Ошибка", f"Произошла ошибка: {e}")
+        except FileNotFoundError:
+            QMessageBox.warning(self.window, "Ошибка", "Файл не найден")
         
-        else:
-            QMessageBox.information(self.window, "Успешно", "Привычки успешно импортированы")
+        except ValueError as e:
+            QMessageBox.warning(self.window, "Ошибка", str(e))
+        
+        except Exception as e:
+            QMessageBox.critical(
+                self.window, 
+                "Ошибка", 
+                f"Произошла ошибка при импорте:\n{e}"
+            )
 
     def export_btn(self):
         """Функция для экспорта привычек в JSON файл"""

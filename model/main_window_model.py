@@ -237,13 +237,46 @@ class MainWindowModel:
         self.db.execute_query_and_commit(self.db.DELETE_OLD_MONTHLY_PROGRESS)
 
     def import_habits(self, file_path):
-        with open(file_path, 'r', encoding="utf-8") as file:
-            habits = json.load(file)
-        for habit in habits:
-            # пытаемя получить id — если он есть то не добавляем привычку 
-            if not self.get_habit_id(habit["name"]):
-                params = (self.user_id, habit["name"], habit["category"], habit["daily_frequency"], habit["created_at"])
-                self.db.execute_query_and_commit(self.db.INSERT_IMPORTED_HABIT, params)
+        """Импортирует привычки из JSON файла, пропуская дубликаты"""
+        try:
+            with open(file_path, 'r', encoding="utf-8") as file:
+                habits = json.load(file)
+            
+            imported_count = 0
+            skipped_count = 0
+            
+            for habit in habits:
+                # Проверяем, существует ли уже привычка с таким именем
+                if not self.get_habit_id(habit["name"]):
+                    try:
+                        params = (
+                            self.user_id, 
+                            habit["name"], 
+                            habit["category"], 
+                            habit["daily_frequency"], 
+                            habit["created_at"]
+                        )
+                        self.db.execute_query_and_commit(
+                            self.db.INSERT_IMPORTED_HABIT, 
+                            params
+                        )
+                        imported_count += 1
+                    except Exception as e:
+                        print(f"Ошибка при импорте '{habit['name']}': {e}")
+                        skipped_count += 1
+                else:
+                    skipped_count += 1
+            
+            return imported_count, skipped_count
+            
+        except FileNotFoundError:
+            raise FileNotFoundError("Файл не найден")
+        except json.JSONDecodeError:
+            raise ValueError("Неверный формат JSON файла")
+        except KeyError as e:
+            raise ValueError(f"В файле отсутствует обязательное поле: {e}")
+        except Exception as e:
+            raise Exception(f"Ошибка при импорте: {e}")
 
     def export_habits(self, file_path):
         params = (self.user_id, )

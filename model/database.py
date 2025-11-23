@@ -184,16 +184,18 @@ class DatabaseQueries:
                 theme    TEXT DEFAULT 'dark'
             )
         """
+    
     SQL_INIT_HABITS_TABLE = """
             CREATE TABLE IF NOT EXISTS habits
             (
                 id         INTEGER PRIMARY KEY AUTOINCREMENT,
                 user_id    INTEGER,
-                name       TEXT UNIQUE,
+                name       TEXT NOT NULL,
                 category   TEXT,
                 daily_frequency  INTEGER DEFAULT 0,
                 created_at TEXT DEFAULT (date('now', 'localtime')),
-                FOREIGN KEY (user_id) REFERENCES users (id)
+                FOREIGN KEY (user_id) REFERENCES users (id),
+                UNIQUE(user_id, name)
             )
         """
         
